@@ -3,19 +3,18 @@ package com.lorenzo.pelone;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.lorenzo.pelone.config.DatabaseConfig;
+import com.lorenzo.pelone.controller.HolidayBookingController;
 
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
-/**
- * Hello world!
- *
- */
+
 public class App 
 {
     public static void main( String[] args )
     {
-        //DatabaseConfig.init("config.properties");
+        DatabaseConfig.init("config.properties");
 
         // Configurazione Jackson per LocalDateTime
         ObjectMapper mapper = new ObjectMapper();
@@ -34,7 +33,7 @@ public class App
 
         app.options("/*", ctx -> { ctx.status(204); });
 
-        //HolidayBookingController holidayBookingController = new HolidayBookingController();
-        //holidayBookingController.registerRoutes(app);
+        HolidayBookingController holidayBookingController = new HolidayBookingController();
+        holidayBookingController.registerRoutes(app);
     }
 }
