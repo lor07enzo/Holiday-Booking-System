@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Separator } from "@radix-ui/react-dropdown-menu";
-import { CalendarDays, Hotel, Search, Users } from "lucide-react";
+
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -24,14 +22,14 @@ function Homepage() {
     loadBookings();
 
     return(
-        <div className="w-full h-screen flex flex-col items-center justify-start pt-10 gap-4">
+        <div className="w-full h-screen flex flex-col items-center justify-start pt-5 gap-4">
             <div className="flex flex-col p-6 item-center w-full justify-center">
-                <h1 className="text-2xl font-semibold">Hi, do you need a vacation?</h1>
 
-                <div className="w-full mt-12">
+                
+                {/* <div className="w-full max-w-4xl">
                     <div className="flex items-center w-full border rounded-lg shadow-xl shadow-black/20 px-2">
 
-                        <div className="flex items-center gap-2 py-2 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 py-2 w-full">
                             <Hotel className="shrink-0"/>
                             <div className="flex flex-col min-w-0">
                                 <span className="text-xs text-muted-foreground leading-tight">Select your Destination</span>
@@ -71,7 +69,7 @@ function Homepage() {
                             <Search className="mr-2 h-4 w-4"/> Search
                         </Button>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )
