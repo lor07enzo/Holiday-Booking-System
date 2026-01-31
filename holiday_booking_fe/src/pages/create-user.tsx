@@ -11,7 +11,9 @@ const createUserFormSchema = z.object({
     name: z.string().min(2, "Name is required"),
     lastName: z.string().min(2, "Last name is required"),
     email: z.string().email("Invalid email"),
-    address: z.string().min(5, "Address is required"),
+    street: z.string().min(3, "Street is required"),
+    city: z.string().min(2, "City is required"),
+    country: z.string().min(2, "Country is required"),
     isHost: z.boolean()
 })
 
@@ -26,10 +28,12 @@ export function CreateUser() {
         const formData = new FormData(e.currentTarget);
 
         const data = {
-            name: formData.get("name"),
-            lastName: formData.get("lastName"),
-            email: formData.get("email"),
-            address: formData.get("address"),
+            name: formData.get("name") as string,
+            lastName: formData.get("lastName") as string,
+            email: formData.get("email") as string,
+            street: formData.get("street") as string,
+            city: formData.get("city") as string,
+            country: formData.get("country") as string,
             isHost
         };
 
@@ -37,21 +41,22 @@ export function CreateUser() {
 
         if (!parsed.success) {
             const fieldErrors: Record<string, string> = {};
-            parsed.error.errors.forEach(err => {
-              fieldErrors[err.path[0]] = err.message;
+            parsed.error.issues.forEach(issue => {
+              fieldErrors[issue.path[0] as string] = issue.message;
             });
             setErrors(fieldErrors);
             return;
         }
 
         setErrors({});
+        const fullAddress = `${parsed.data.street}, ${parsed.data.city}, ${parsed.data.country}`;
 
         const payload = {
             user: {
                 name: parsed.data.name,
                 lastName: parsed.data.lastName,
                 email: parsed.data.email,
-                address: parsed.data.address
+                address: fullAddress
             },
             isHost: parsed.data.isHost // backend decide se creare Host
         };
@@ -93,20 +98,23 @@ export function CreateUser() {
                                     <Input id="email" name="email" type="email" placeholder="m@example.com" aria-invalid={!!errors.email} />  
                                     {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                                 </Field>
-                                {/*TODO: Modificare i required ed unire i tipi di indirizzi */}
+                                
                                 <Field>
-                                    <FieldLabel htmlFor="address">Residential Address</FieldLabel>
-                                    <Input id="address" type="text" placeholder="Via Roma, 56" required />
+                                    <FieldLabel htmlFor="street">Street</FieldLabel>
+                                    <Input id="street" name="street" placeholder="Via Roma, 56" aria-invalid={!!errors.street} />
+                                    {errors.street && <p className="text-red-500 text-sm">{errors.street}</p>}
                                 </Field>
 
                                 <Field>
                                     <FieldLabel htmlFor="city">City</FieldLabel>
-                                    <Input id="city" type="text" placeholder="Firenze" required />
+                                    <Input id="city" name="city" placeholder="Firenze" aria-invalid={!!errors.city} />
+                                    {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
                                 </Field>
 
                                 <Field>
                                     <FieldLabel htmlFor="country">Country</FieldLabel>
-                                    <Input id="country" type="text" placeholder="Italy" required />
+                                    <Input id="country" name="country" placeholder="Italy" aria-invalid={!!errors.country} />
+                                    {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
                                 </Field>
                             </div>
 

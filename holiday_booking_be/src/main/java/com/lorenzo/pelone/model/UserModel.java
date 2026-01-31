@@ -1,6 +1,6 @@
 package com.lorenzo.pelone.model;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserModel {
-    UUID id;
-    String name;
-    String email;
-    String lastName;
-    String address;
+    private int id;
+    private String name;
+    private String email;
+    private String lastName;
+    private String address;
+    private LocalDateTime createdAt;
 }

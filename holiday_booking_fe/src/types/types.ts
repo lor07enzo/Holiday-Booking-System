@@ -1,14 +1,14 @@
 export interface IUser {
     id: string;
     name: string;
-    lastname: string;
+    lastName: string;
     email: string;
     address: string;
 }
 
 export interface IHost {
     user: IUser;
-    hostCode: number;
+    hostCode: number; 
     superHost: boolean;
 }
 

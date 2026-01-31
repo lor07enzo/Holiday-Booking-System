@@ -1,10 +1,14 @@
 package com.lorenzo.pelone;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lorenzo.pelone.config.DatabaseConfig;
-import com.lorenzo.pelone.controller.HolidayBookingController;
+import com.lorenzo.pelone.controller.UserController;
+import com.sun.tools.javac.Main;
 
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
@@ -12,6 +16,7 @@ import io.javalin.json.JavalinJackson;
 
 public class App 
 {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
     public static void main( String[] args )
     {
         DatabaseConfig.init("config.properties");
@@ -31,9 +36,12 @@ public class App
             ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
         });
 
-        app.options("/*", ctx -> { ctx.status(204); });
+        app.options("/*", ctx -> { 
+            ctx.status(204); 
+        });
+        logger.info("Server started on port 7000");
 
-        HolidayBookingController holidayBookingController = new HolidayBookingController();
+        UserController holidayBookingController = new UserController();
         holidayBookingController.registerRoutes(app);
     }
 }
