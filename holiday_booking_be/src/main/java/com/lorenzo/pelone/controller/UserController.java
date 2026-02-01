@@ -1,6 +1,8 @@
 package com.lorenzo.pelone.controller;
 
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,50 @@ public class UserController {
 
     public void registerRoutes(Javalin app) {
         app.get(BASE_PATH + "/users", ctx -> {
-            
+            try {
+                List<UserModel> users = userService.getAllUsers();
+                ctx.json(users);
+            } catch (Exception e) {
+                logger.error("Error fetching users", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+            }
+        });
+
+        app.get(BASE_PATH + "/users/{id}", ctx -> {
+            try {
+                UserModel getUser = userService.getUserById(Integer.parseInt(ctx.pathParam("id")));
+                ctx.json(getUser);
+            } catch (Exception e) {
+                logger.error("Error fetching user by ID", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+            }
+        });
+
+        app.get(BASE_PATH + "/hosts", ctx -> {
+            try {
+                List<HostModel> hosts = userService.getAllHosts();
+                ctx.json(hosts);
+            } catch (Exception e) {
+                logger.error("Error fetching hosts", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+            }
+        });
+
+        app.get(BASE_PATH + "/hosts/{hostCode}", ctx -> {
+            try {
+                int hostCode = Integer.parseInt(ctx.pathParam("hostCode"));
+                HostModel host = userService.getHostByCode(hostCode);
+                ctx.json(host);
+            } catch (NumberFormatException e) {
+                logger.error("Invalid host code format", e);
+                ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("Invalid host code format"));
+            } catch (IllegalArgumentException e) {
+                logger.error("Host not found", e);
+                ctx.status(HttpStatus.NOT_FOUND).json(new ErrorResponse(e.getMessage()));
+            } catch (Exception e) {
+                logger.error("Error fetching host by code", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+            }
         });
 
         app.post(BASE_PATH + "/users", ctx -> {
@@ -74,7 +119,7 @@ public class UserController {
             } catch (Exception e) {
                 // Errori del server
                 logger.error("Error creating user/host", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse("Internal server error"));
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
             }
         });
     }

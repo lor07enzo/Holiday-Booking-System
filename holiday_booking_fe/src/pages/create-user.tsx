@@ -58,7 +58,7 @@ export function CreateUser() {
                 email: parsed.data.email,
                 address: fullAddress
             },
-            isHost: parsed.data.isHost // backend decide se creare Host
+            host: parsed.data.isHost
         };
 
         await fetch(`${API_URL}/api/v1/users`, {
@@ -66,6 +66,8 @@ export function CreateUser() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
+        e.currentTarget.reset();
+        console.log("User created successfully");
     }
 
     return (

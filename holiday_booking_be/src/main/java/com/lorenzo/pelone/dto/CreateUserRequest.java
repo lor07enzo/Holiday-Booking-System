@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateUserRequest {
     private UserModel user;
-    private boolean isHost;
+    private boolean host;
 }

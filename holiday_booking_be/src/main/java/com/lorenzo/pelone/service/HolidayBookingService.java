@@ -2,6 +2,7 @@ package com.lorenzo.pelone.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,28 @@ public class HolidayBookingService {
     public HolidayBookingService() {
         this.userRepository = new UserRepository();
     }
+
     
+    public List<UserModel> getAllUsers() {
+        return userRepository.allUsers();
+    }
+
+    public UserModel getUserById(int id) {
+        return userRepository.userById(id);
+    }
+
+    public List<HostModel> getAllHosts() {
+        return userRepository.allHosts();
+    }
+
+    public HostModel getHostByCode(int hostCode) {
+        HostModel host = userRepository.hostbyCode(hostCode);
+        if (host == null) {
+            throw new RuntimeException("Host not found with code: " + hostCode);
+        } else {
+            return host;
+        }
+    }
     
     public Object createUser(UserModel user, boolean isHost) {
         // Validazione business
@@ -79,9 +101,7 @@ public class HolidayBookingService {
         }
     }
     
-    /**
-     * Logica di business per generare un hostCode univoco
-     */
+    
     private int generateUniqueHostCode() {
         return (int) (Math.random() * 900000) + 100000;
     }
