@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.lorenzo.pelone.dto.CreateUserRequest;
 import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
-import com.lorenzo.pelone.service.HolidayBookingService;
+import com.lorenzo.pelone.service.UserService;
 
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
@@ -17,10 +17,10 @@ import io.javalin.http.HttpStatus;
 public class UserController {
     private static final String BASE_PATH = "/api/v1";
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private final HolidayBookingService userService;
+    private final UserService userService;
 
     public UserController() {
-        this.userService = new HolidayBookingService();
+        this.userService = new UserService();
     }
 
     public void registerRoutes(Javalin app) {

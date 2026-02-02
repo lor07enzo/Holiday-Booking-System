@@ -1,43 +1,52 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { IHost, IUser } from "@/types/types";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Homepage() {
+    const [users, setUsers] = useState<IUser[]>([])
+    const [hosts, setHosts] = useState<IHost[]>([])
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                
+                // Carica utenti
+                const usersRes = await fetch(`${API_URL}/api/v1/users`);
+                if (!usersRes.ok) {
+                    throw new Error("Failed to fetch users");
+                }
+                const usersData = await usersRes.json();
+                setUsers(usersData);
 
-    const loadUsers = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/v1/users`);
-            if (!res.ok) {
-                throw new Error("Failed to fetch users");
-            } 
-            return res.json();
-            
-        } catch (error) {
-            toast.error("Error server comunication!");
-            console.error(error);
-        }
-        console.log("Users loaded successfully");
+                // Carica hosts
+                const hostsRes = await fetch(`${API_URL}/api/v1/hosts`);
+                if (!hostsRes.ok) {
+                    throw new Error("Failed to fetch hosts");
+                }
+                const hostsData = await hostsRes.json();
+                setHosts(hostsData);
+
+                console.log("Data loaded successfully");
+            } catch (error) {
+                toast.error("Error server communication!");
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    if (loading) {
+        return <div className="w-full h-screen flex items-center justify-center">Loading...</div>;
     }
-    loadUsers();
-
-    const loadHosts = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/v1/hosts`);
-            if (!res.ok) {
-                throw new Error("Failed to fetch users");
-            } 
-            return res.json();
-
-        } catch (error) {
-            toast.error("Error server comunication!");
-            console.error(error);
-        }
-        console.log("Hosts loaded successfully");
-    }
-    loadHosts();
 
     return(
         <div className="w-full h-screen flex flex-col items-center justify-start gap-4">
@@ -57,13 +66,23 @@ function Homepage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow className="grid grid-cols-5">
-                                    <TableCell className="font-medium">INV001</TableCell>
-                                    <TableCell>Paid</TableCell>
-                                    <TableCell>Credit Card</TableCell>
-                                    <TableCell>12 Jan 2023</TableCell>
-                                    <TableCell className="text-right">$250.00</TableCell>
-                                </TableRow>
+                                {users.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                            No users found
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    users.map((user) => (
+                                        <TableRow key={user.id} className="grid grid-cols-5">
+                                            <TableCell className="font-medium">{user.id}</TableCell>
+                                            <TableCell>{user.name}</TableCell>
+                                            <TableCell>{user.lastName}</TableCell>
+                                            <TableCell>{user.email}</TableCell>
+                                            <TableCell className="text-right">{user.address}</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </div>
@@ -75,7 +94,7 @@ function Homepage() {
                         <Table className="w-full">
                             <TableHeader>
                                 <TableRow className="grid grid-cols-5">
-                                    <TableHead className="w-25">ID</TableHead>
+                                    <TableHead className="j">ID</TableHead>
                                     <TableHead>Host Code</TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Last Name</TableHead>
@@ -83,13 +102,25 @@ function Homepage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow className="grid grid-cols-5">
-                                    <TableCell className="font-medium">INV001</TableCell>
-                                    <TableCell>Paid</TableCell>
-                                    <TableCell>Credit Card</TableCell>
-                                    <TableCell>12 Jan 2023</TableCell>
-                                    <TableCell className="text-right">$250.00</TableCell>
-                                </TableRow>
+                                {hosts.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                            No hosts found
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    hosts.map((host) => (
+                                        <TableRow key={host.user.id} className="grid grid-cols-5">
+                                            <TableCell className="font-medium">{host.user.id}</TableCell>
+                                            <TableCell>{host.hostCode}</TableCell>
+                                            <TableCell>{host.user.name}</TableCell>
+                                            <TableCell>{host.user.lastName}</TableCell>
+                                            <TableCell className="text-right">
+                                                {host.superHost ? "Yes" : "No"}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </div>

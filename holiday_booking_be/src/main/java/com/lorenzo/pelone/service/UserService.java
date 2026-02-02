@@ -12,21 +12,27 @@ import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
 import com.lorenzo.pelone.repository.UserRepository;
 
-public class HolidayBookingService {
-    private static final Logger logger = LoggerFactory.getLogger(HolidayBookingService.class);
+public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
 
-    public HolidayBookingService() {
+    public UserService() {
         this.userRepository = new UserRepository();
     }
 
     
+    // Logica di business per gli utenti e host in GET
     public List<UserModel> getAllUsers() {
         return userRepository.allUsers();
     }
 
     public UserModel getUserById(int id) {
-        return userRepository.userById(id);
+        UserModel user = userRepository.userById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found with ID: " + id);
+        } else {
+            return user;
+        }
     }
 
     public List<HostModel> getAllHosts() {
@@ -42,8 +48,8 @@ public class HolidayBookingService {
         }
     }
     
+    // Logica di business per gli utenti e host in POST
     public Object createUser(UserModel user, boolean isHost) {
-        // Validazione business
         try {
             if (userRepository.emailExists(user.getEmail())) {
                 throw new IllegalArgumentException("Email already exists");
@@ -58,12 +64,9 @@ public class HolidayBookingService {
             conn = DatabaseConfig.getConnection();
             conn.setAutoCommit(false);
             
-            // 1. Inserisci utente
             UserModel createdUser = userRepository.insertUser(conn, user);
             
-            // 2. Se è host, inserisci anche l'host
             if (isHost) {
-                // Logica di business: genera hostCode
                 int hostCode = generateUniqueHostCode();
                 
                 HostModel host = userRepository.insertHost(conn, createdUser, hostCode);
@@ -73,12 +76,12 @@ public class HolidayBookingService {
                 return host;
             } else {
                 conn.commit();
-                logger.info("User created successfully! ID: {}", createdUser.getId());
+                logger.info("User created successfully! ID: ", createdUser.getId());
                 return createdUser;
             }
             
         } catch (SQLException e) {
-            logger.error("Error creating user: {}", e.getMessage(), e);
+            logger.error("Error creating user: ", e.getMessage(), e);
             if (conn != null) {
                 try {
                     conn.rollback();
@@ -101,7 +104,7 @@ public class HolidayBookingService {
         }
     }
     
-    
+    // Generatore di hostCode
     private int generateUniqueHostCode() {
         return (int) (Math.random() * 900000) + 100000;
     }

@@ -16,6 +16,7 @@ export interface IHabitation {
     id: string;
     host: IHost;
     name: string;
+    description: string;
     address: string;
     floor: number;
     rooms: number;
