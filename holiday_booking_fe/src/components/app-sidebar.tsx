@@ -31,7 +31,7 @@ const data = {
         },
         {
           title: "Add new Habitation",
-          url: "#",
+          url: "new-habitation",
         },
         {
           title: "Add new Feedback for Habitation",
@@ -54,7 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SearchForm />
       </SidebarHeader>
       <SidebarContent>
-        {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>

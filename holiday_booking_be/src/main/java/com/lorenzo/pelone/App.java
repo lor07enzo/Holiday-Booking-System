@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lorenzo.pelone.config.DatabaseConfig;
+import com.lorenzo.pelone.controller.HabitationController;
 import com.lorenzo.pelone.controller.UserController;
 import com.sun.tools.javac.Main;
 
@@ -19,6 +20,9 @@ public class App
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     public static void main( String[] args )
     {
+        UserController userController = new UserController();
+        HabitationController habitationController = new HabitationController();
+
         DatabaseConfig.init("config.properties");
 
         // Configurazione Jackson per LocalDateTime
@@ -41,7 +45,8 @@ public class App
         });
         logger.info("Server started on port 7000");
 
-        UserController holidayBookingController = new UserController();
-        holidayBookingController.registerRoutes(app);
+        // Registrazione delle rotte
+        userController.registerRoutes(app);
+        habitationController.registerRoutes(app);
     }
 }

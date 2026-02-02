@@ -49,7 +49,7 @@ public class HabitationRepository {
                 host.setSuperHost(rs.getBoolean("super_host"));
 
                 HabitationModel habitation = new HabitationModel();
-                habitation.setId(rs.getString("id"));
+                habitation.setId(rs.getInt("id"));
                 habitation.setHost(host);
                 habitation.setName(rs.getString("name"));
                 habitation.setDescription(rs.getString("description"));
@@ -114,7 +114,7 @@ public class HabitationRepository {
             
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                habitation.setId(rs.getString("id"));
+                habitation.setId(rs.getInt("id"));
                 habitation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
             }
             

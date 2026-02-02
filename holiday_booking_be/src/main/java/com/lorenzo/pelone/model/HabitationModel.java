@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HabitationModel {
-    private String id;
+    private int id;
     private HostModel host;
     private String name;
     private String description;

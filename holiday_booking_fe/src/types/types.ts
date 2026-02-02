@@ -13,7 +13,7 @@ export interface IHost {
 }
 
 export interface IHabitation {
-    id: string;
+    id: number;
     host: IHost;
     name: string;
     description: string;
