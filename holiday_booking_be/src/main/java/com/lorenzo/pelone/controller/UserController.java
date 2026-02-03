@@ -30,7 +30,7 @@ public class UserController {
                 ctx.json(users);
             } catch (Exception e) {
                 logger.error("Error fetching users", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
 
@@ -40,7 +40,7 @@ public class UserController {
                 ctx.json(getUser);
             } catch (Exception e) {
                 logger.error("Error fetching user by ID", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
 
@@ -50,7 +50,7 @@ public class UserController {
                 ctx.json(hosts);
             } catch (Exception e) {
                 logger.error("Error fetching hosts", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
 
@@ -61,88 +61,60 @@ public class UserController {
                 ctx.json(host);
             } catch (NumberFormatException e) {
                 logger.error("Invalid host code format", e);
-                ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("Invalid host code format"));
+                ctx.status(HttpStatus.BAD_REQUEST).result("Invalid host code format");
             } catch (IllegalArgumentException e) {
                 logger.error("Host not found", e);
-                ctx.status(HttpStatus.NOT_FOUND).json(new ErrorResponse(e.getMessage()));
+                ctx.status(HttpStatus.NOT_FOUND).result(e.getMessage());
             } catch (Exception e) {
                 logger.error("Error fetching host by code", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
+
 
         app.post(BASE_PATH + "/users", ctx -> {
            try {
                 CreateUserRequest requestDTO = ctx.bodyAsClass(CreateUserRequest.class);
                 
-                // Validazione input
                 if (requestDTO.getUser() == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("User data is required"));
+                    ctx.status(HttpStatus.BAD_REQUEST).result("User data is required");
                     return;
                 }
                 
                 UserModel user = requestDTO.getUser();
                 
-                // Validazioni specifiche
                 if (user.getName() == null || user.getName().trim().isEmpty()) {
-                    ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("Name is required"));
+                    ctx.status(HttpStatus.BAD_REQUEST).result("Name is required");
                     return;
                 }
                 
                 if (user.getLastName() == null || user.getLastName().trim().isEmpty()) {
-                    ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("Last name is required"));
+                    ctx.status(HttpStatus.BAD_REQUEST).result("Last name is required");
                     return;
                 }
                 
                 if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-                    ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse("Email is required"));
+                    ctx.status(HttpStatus.BAD_REQUEST).result("Email is required");
                     return;
                 }
-                
-                // Chiama il service (un solo metodo che gestisce entrambi i casi)
                 Object result = userService.createUser(user, requestDTO.isHost());
                 
-                // Prepara la risposta in base al tipo
                 if (result instanceof HostModel) {
                     HostModel host = (HostModel) result;
-                    ctx.status(HttpStatus.CREATED).json(new SuccessResponse("Host created successfully", host.getUser(), host));
+                    ctx.status(HttpStatus.CREATED).result("Host created successfully: " + host);
                 } else {
                     UserModel createdUser = (UserModel) result;
-                    ctx.status(HttpStatus.CREATED).json(new SuccessResponse("User created successfully", createdUser, null));
+                    ctx.status(HttpStatus.CREATED).result("User created successfully: " + createdUser);
                 }
                 
             } catch (IllegalArgumentException e) {
-                // Errori di validazione business (es: email già esistente)
-                logger.warn("Validation error: {}", e.getMessage());
-                ctx.status(HttpStatus.BAD_REQUEST).json(new ErrorResponse(e.getMessage()));
+                logger.warn("Validation error: ", e.getMessage());
+                ctx.status(HttpStatus.BAD_REQUEST).result(e.getMessage());
                    
             } catch (Exception e) {
-                // Errori del server
-                logger.error("Error creating user/host", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(new ErrorResponse(e.getMessage()));
+                logger.error("Error creating user/host: ", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
-    }
-
-
-    private static class SuccessResponse {
-        public String message;
-        public UserModel user;
-        public HostModel host;
-        
-        public SuccessResponse(String message, UserModel user, HostModel host) {
-            this.message = message;
-            this.user = user;
-            this.host = host;
-        }
-    }
-    
-    // Classe per risposta di errore
-    private static class ErrorResponse {
-        public String error;
-        
-        public ErrorResponse(String error) {
-            this.error = error;
-        }
     }
 }

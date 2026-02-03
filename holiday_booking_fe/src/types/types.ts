@@ -1,3 +1,5 @@
+export type IStatus = 'Confirmed' | 'Annulled' | 'Completed';
+
 export interface IUser {
     id: number;
     name: string;
@@ -26,13 +28,19 @@ export interface IHabitation {
 }
 
 export interface IReservation {
-    id: string;
+    id: number;
     habitation: IHabitation;
     user: IUser;
+    status: IStatus;
     startDate: Date;
     endDate: Date;
 }
 
 export interface IFeedback {
     id: string;
+    reservation: IReservation;
+    user: IUser;
+    title: string;
+    text: string
+    score: number;
 }

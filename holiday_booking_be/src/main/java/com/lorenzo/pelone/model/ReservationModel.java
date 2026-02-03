@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReservationModel {
-    int id;
-    HabitationModel habitation;
-    UserModel user;
-    LocalDate startDate;
-    LocalDate endDate;
+    private int id;
+    private HabitationModel habitation;
+    private UserModel user;
+    private String status; // Confirmed | Annulled | Completed
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

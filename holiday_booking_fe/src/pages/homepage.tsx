@@ -1,56 +1,41 @@
-
+import { OverviewSection } from "@/components/overview-section";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { IHost, IUser } from "@/types/types";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useUsers } from "@/context/user-context";
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 function Homepage() {
-    const [users, setUsers] = useState<IUser[]>([])
-    const [hosts, setHosts] = useState<IHost[]>([])
-    const [loading, setLoading] = useState(true);
+    const { users, hosts, habitations, loading } = useUsers();
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                setLoading(true);
-                
-                // Carica utenti
-                const usersRes = await fetch(`${API_URL}/api/v1/users`);
-                if (!usersRes.ok) {
-                    throw new Error("Failed to fetch users");
-                }
-                const usersData = await usersRes.json();
-                setUsers(usersData);
 
-                // Carica hosts
-                const hostsRes = await fetch(`${API_URL}/api/v1/hosts`);
-                if (!hostsRes.ok) {
-                    throw new Error("Failed to fetch hosts");
-                }
-                const hostsData = await hostsRes.json();
-                setHosts(hostsData);
+    const totalReservationsBeds = habitations.length > 0 ? habitations.reduce((sum, h) => sum + h.rooms, 0) / habitations.length : 0;
 
-                console.log("Data loaded successfully");
-            } catch (error) {
-                toast.error("Error server communication!");
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const totalHabitations = habitations.length;
+    const totalHosts = hosts.length;
+    const totalReservations = 1;
+    const mediaNumberRooms = Math.round(totalReservationsBeds * 10) / 10;
 
-        loadData();
-    }, []);
+
 
     if (loading) {
         return <div className="w-full h-screen flex items-center justify-center">Loading...</div>;
     }
 
+    console.log("HOSTS:", hosts);
     return(
-        <div className="w-full h-screen flex flex-col items-center justify-start gap-4">
-            <div className="flex flex-col p-4 gap-10 ">
+        <div className="w-full h-screen flex flex-col items-center justify-start ">
+            <div className="flex flex-col  ">
+                <div className="text-muted-foreground ">
+                    <section>
+                        <h1 className="font-bold text-xl text-muted-foreground py-4">Overview</h1>
+                        <OverviewSection
+                            totalHabitations={totalHabitations}
+                            totalHosts={totalHosts}
+                            totalReservations={totalReservations}
+                            mediaNumberRooms={mediaNumberRooms}
+                        />
+                    </section>
+                    
+                </div>
 
                <div>
                     <h1 className="font-bold text-lg text-center py-2">List of All Users</h1>
@@ -79,7 +64,7 @@ function Homepage() {
                                             <TableCell>{user.name}</TableCell>
                                             <TableCell>{user.lastName}</TableCell>
                                             <TableCell>{user.email}</TableCell>
-                                            <TableCell className="text-right">{user.address}</TableCell>
+                                            <TableCell className="text-right ">{user.address}</TableCell>
                                         </TableRow>
                                     ))
                                 )}
@@ -126,50 +111,7 @@ function Homepage() {
                     </div>
                 </div>
 
-                {/* <div className="w-full max-w-4xl">
-                    <div className="flex items-center w-full border rounded-lg shadow-xl shadow-black/20 px-2">
-
-                        <div className="flex items-center gap-2 py-2 w-full">
-                            <Hotel className="shrink-0"/>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-xs text-muted-foreground leading-tight">Select your Destination</span>
-                                <input
-                                    type="text"
-                                    placeholder="Insert name of habitation"
-                                    className="w-full min-w-0 bg-transparent border-0 p-0 text-sm placeholder:text-muted-foreground focus:outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        <Separator aria-orientation="vertical" className="border mx-2 h-8"/>
-
-                        <Button variant="ghost" className="pl-2 pr-6 h-full">
-                            <span className="flex items-center gap-2">
-                                <CalendarDays/>
-                                <div className="flex flex-col items-start leading-tight">
-                                    <span className="text-xs text-muted-foreground">Start / End</span>
-                                    <span>DateStart - DateEnd</span>
-                                </div>
-                            </span>
-                        </Button>
-
-                        <Separator aria-orientation="vertical" className="border mx-2 h-8"/>
-
-                        <Button variant="ghost" className="pl-2 pr-6 h-full">
-                            <span className="flex items-center gap-2">
-                                <Users/>
-                                <div className="flex flex-col items-start leading-tight">
-                                    <span className="text-xs text-muted-foreground">Guests and Rooms</span>
-                                    <span>1 Guest, 1 Room</span>
-                                </div>
-                            </span>
-                        </Button>
-
-                        <Button className="ml-2 h-full px-4">
-                            <Search className="mr-2 h-4 w-4"/> Search
-                        </Button>
-                    </div>
-                </div> */}
+                
             </div>
         </div>
     )

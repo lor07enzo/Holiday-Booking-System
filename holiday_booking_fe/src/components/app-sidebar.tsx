@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <span className="font-bold text-center text-2xl py-2">Holiday Booking</span>
+        <span className="font-bold text-center text-2xl py-2">HolidayBooking</span>
         <SearchForm />
       </SidebarHeader>
       <SidebarContent>

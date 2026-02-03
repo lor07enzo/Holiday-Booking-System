@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { Separator } from "./ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "./ui/breadcrumb"
+import { House } from "lucide-react"
 
 
 function Layout () {
@@ -18,9 +19,9 @@ function Layout () {
                     />
                     <Breadcrumb>
                         <BreadcrumbList>
-                            <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="/">
-                                    Homepage
+                            <BreadcrumbItem className="text-xl font-bold text-blue-900">
+                                <BreadcrumbLink href="/" className="flex gap-2 items-center">
+                                    <House/>  HolidayBooking
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                         </BreadcrumbList>

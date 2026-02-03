@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useUsers } from "@/context/user-context";
 import { useState } from "react";
 import { z } from "zod";
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 const createUserFormSchema = z.object({
     name: z.string().min(2, "Name is required"),
@@ -22,10 +22,12 @@ export type CreateUserFormData = z.infer<typeof createUserFormSchema>;
 export function CreateUser() {
     const [isHost, setIsHost] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { createUser, loading } = useUsers();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
 
         const data = {
             name: formData.get("name") as string,
@@ -61,13 +63,9 @@ export function CreateUser() {
             host: parsed.data.isHost
         };
 
-        await fetch(`${API_URL}/api/v1/users`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        e.currentTarget.reset();
-        console.log("User created successfully");
+        await createUser(payload);
+        form.reset();
+        setIsHost(false);
     }
 
     return (
@@ -136,7 +134,9 @@ export function CreateUser() {
                                 </div>
                             </Field>
                             
-                            <Button type="submit">Create Account</Button>
+                            <Button type="submit" disabled={loading}>
+                                {loading ? "Creating..." : "Create Account"}
+                            </Button>
                         </FieldGroup>
                     </form>
                 </CardContent>
