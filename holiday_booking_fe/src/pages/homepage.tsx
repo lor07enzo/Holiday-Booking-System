@@ -20,9 +20,8 @@ function Homepage() {
         return <div className="w-full h-screen flex items-center justify-center">Loading...</div>;
     }
 
-    console.log("HOSTS:", hosts);
     return(
-        <div className="w-full h-screen flex flex-col items-center justify-start ">
+        <div className="w-full h-screen flex flex-col items-center p-4 justify-start ">
             <div className="flex flex-col  ">
                 <div className="text-muted-foreground ">
                     <section>
