@@ -97,6 +97,23 @@ public class HabitationRepository {
         }
     }
 
+    public int getHostCodeByHabitationId(int habitationId) throws SQLException {
+        String sql = "SELECT host_code FROM habitations WHERE id = ?";
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, habitationId);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("host_code");
+            } else {
+                throw new SQLException("Nessuna abitazione trovata con ID: " + habitationId);
+            }
+        }
+    }
+
 
     public HabitationModel insertHabitation (Connection conn, HabitationModel habitation, int hostCode) throws SQLException {
         String sql = "INSERT INTO habitations (host_code, name, description, address, floor, rooms, price, start_available, end_available) " +

@@ -1,10 +1,10 @@
 package com.lorenzo.pelone.repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,7 @@ import com.lorenzo.pelone.model.UserModel;
 public class ReservationRepository {
     private static final Logger logger = LoggerFactory.getLogger(ReservationRepository.class);
 
-    /**
-     * Inserisce una nuova prenotazione
-     */
+    
     public int insertReservation(Connection conn, int habitationId, int userId, 
                                  LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "INSERT INTO reservations (habitation_id, user_id, status, start_date, end_date) " +
@@ -47,9 +45,6 @@ public class ReservationRepository {
         }
     }
 
-    /**
-     * Recupera una prenotazione completa per ID
-     */
     public ReservationModel getReservationById(int reservationId) throws SQLException {
         String sql = "SELECT r.*, " +
                      "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
@@ -79,9 +74,6 @@ public class ReservationRepository {
         }
     }
 
-    /**
-     * Recupera tutte le prenotazioni
-     */
     public List<ReservationModel> allReservations() throws SQLException {
         List<ReservationModel> reservations = new ArrayList<>();
         
@@ -111,9 +103,6 @@ public class ReservationRepository {
         return reservations;
     }
 
-    /**
-     * Verifica disponibilità dell'abitazione
-     */
     public void checkAvailability(int habitationId, int userId, LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "SELECT " +
                      "EXISTS(SELECT 1 FROM habitations WHERE id = ?) as hab_exists, " +
@@ -158,11 +147,8 @@ public class ReservationRepository {
         }
     }
 
-    /**
-     * Helper per costruire una prenotazione dal ResultSet
-     */
     private ReservationModel buildReservationFromResultSet(ResultSet rs) throws SQLException {
-        // Utente che prenota
+       
         UserModel user = new UserModel();
         user.setId(rs.getInt("user_id"));
         user.setName(rs.getString("user_name"));
@@ -171,7 +157,6 @@ public class ReservationRepository {
         user.setAddress(rs.getString("user_address"));
         user.setCreatedAt(rs.getTimestamp("user_created_at").toLocalDateTime());
         
-        // Utente host
         UserModel hostUser = new UserModel();
         hostUser.setId(rs.getInt("host_user_id"));
         hostUser.setName(rs.getString("host_name"));
@@ -180,13 +165,11 @@ public class ReservationRepository {
         hostUser.setAddress(rs.getString("host_address"));
         hostUser.setCreatedAt(rs.getTimestamp("host_created_at").toLocalDateTime());
         
-        // Host
         HostModel host = new HostModel();
         host.setUser(hostUser);
         host.setHostCode(rs.getInt("host_code"));
         host.setSuperHost(rs.getBoolean("super_host"));
         
-        // Abitazione
         HabitationModel habitation = new HabitationModel();
         habitation.setId(rs.getInt("hab_id"));
         habitation.setHost(host);
@@ -200,7 +183,6 @@ public class ReservationRepository {
         habitation.setEndAvailable(rs.getDate("end_available").toLocalDate());
         habitation.setCreatedAt(rs.getTimestamp("hab_created_at").toLocalDateTime());
         
-        // Prenotazione
         ReservationModel reservation = new ReservationModel();
         reservation.setId(rs.getInt("id"));
         reservation.setHabitation(habitation);
@@ -211,5 +193,22 @@ public class ReservationRepository {
         reservation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         
         return reservation;
+    }
+
+    // Update sullo stato della prenotazione
+    public void updateExpiredReservations() throws SQLException {
+        
+        String sql = "UPDATE reservations " +
+                     "SET status = 'Completed' " +
+                     "WHERE end_date < CURRENT_DATE " +
+                     "AND status = 'Confirmed'";
+    
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Sincronizzazione database: " + rowsUpdated + " prenotazioni portate a 'Completed'.");
+            }
+        }
     }
 }

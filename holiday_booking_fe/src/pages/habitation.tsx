@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import type { DateRange } from "react-day-picker";
 import { useUsers } from "@/context/context";
+import { useNavigate } from "react-router";
 
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -40,6 +41,7 @@ export function Habitation() {
     const { hosts } = useUsers();
     const [date, setDate] = useState<DateRange | undefined>(undefined);
     const [selectedHostCode, setSelectedHostCode] = useState<string>("");
+    const navigate = useNavigate();
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -104,6 +106,7 @@ export function Habitation() {
             form.reset();
             setSelectedHostCode("");
             setDate({ from: undefined, to: undefined });
+            navigate("/");
             toast.success("Habitation created successfully!");
             console.log("Habitation created successfully!");
 

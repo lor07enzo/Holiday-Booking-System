@@ -39,3 +39,14 @@ CREATE TABLE reservations (
     CONSTRAINT valid_status CHECK (status IN ('Confirmed', 'Annulled', 'Completed')),
     CONSTRAINT valid_dates CHECK (end_date > start_date)
 );
+
+CREATE TABLE feedback (
+    id VARCHAR(100) PRIMARY KEY,
+	reservation_id INTEGER NOT NULL REFERENCES reservations(id),
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	title VARCHAR(50) NOT NULL,
+	text_description VARCHAR(250),
+	score INTEGER NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT valid_score CHECK (score <= 5)
+);

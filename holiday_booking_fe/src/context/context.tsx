@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { IUser, IHost, IHabitation, IReservation } from "@/types";
+import type { IUser, IHost, IHabitation, IReservation, IStatus } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +14,14 @@ interface CreateUserPayload {
     host: boolean;
 }
 
+interface CreateReservationPayload {
+    habitation: IHabitation;
+    user: IUser;
+    status: IStatus;
+    startDate: Date;
+    endDate: Date;
+}
+
 interface UserContextType {
     users: IUser[];
     hosts: IHost[];
@@ -21,6 +29,7 @@ interface UserContextType {
     reservations: IReservation[];
     loading: boolean;
     createUser: (payload: CreateUserPayload) => Promise<void>;
+    createReservation: (payload: CreateReservationPayload) => Promise<void>;
     fetchUsers: () => Promise<void>;
     fetchHosts: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
@@ -80,6 +89,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+//     const getFeedbacksByHabitationId = (habitationId: number) => {
+//     return feedbacks.filter(fb => fb.reservation.habitationId === habitationId);
+// };
+
     const createUser = async (payload: CreateUserPayload) => {
         try {
             setLoading(true);
@@ -104,6 +117,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const createReservation = async (payload: CreateReservationPayload) => {
+        try {
+            setLoading(true);
+            const res = await fetch(`${API_URL}/api/v1/reservations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    habitationId: payload.habitation.id,
+                    userId: payload.user.id,
+                    startDate: payload.startDate.toISOString().split('T')[0], 
+                    endDate: payload.endDate.toISOString().split('T')[0]
+                }),
+            });
+      
+            if (!res.ok) {
+                const error = await res.text();
+                throw new Error(error);
+            }
+            toast.success("Reservation created successfully!");
+            await fetchReservations(); 
+
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Errore server")
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => { 
         fetchHosts();
         fetchUsers();
@@ -112,7 +154,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <UserContext.Provider value={{ users, hosts, habitations, reservations, loading, createUser, fetchHosts, fetchUsers, fetchHabitations, fetchReservations }}>
+        <UserContext.Provider value={{ users, hosts, habitations, reservations, loading, createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations }}>
             {children}
         </UserContext.Provider>
     );

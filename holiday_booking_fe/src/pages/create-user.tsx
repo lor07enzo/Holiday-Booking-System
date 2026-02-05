@@ -4,6 +4,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useUsers } from "@/context/context";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { z } from "zod";
 
 
@@ -23,6 +24,7 @@ export function CreateUser() {
     const [isHost, setIsHost] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { createUser, loading } = useUsers();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -66,6 +68,7 @@ export function CreateUser() {
         await createUser(payload);
         form.reset();
         setIsHost(false);
+        navigate("/");
     }
 
     return (

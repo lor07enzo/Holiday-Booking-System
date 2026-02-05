@@ -22,7 +22,6 @@ public class ReservationController {
     }
 
     public void registerRoutes(Javalin app) {
-        // GET - Lista tutte le prenotazioni
         app.get(BASE_PATH + "/reservations", ctx -> {
             try {
                 List<ReservationModel> reservations = reservationService.getAllReservations();
@@ -34,12 +33,10 @@ public class ReservationController {
             }
         });
 
-        // POST - Crea una nuova prenotazione
         app.post(BASE_PATH + "/reservations", ctx -> {
             try {
                 CreateReservationRequest requestDTO = ctx.bodyAsClass(CreateReservationRequest.class);
                 
-                // Validazione input base
                 if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null) {
                     ctx.status(HttpStatus.BAD_REQUEST)
                        .result("Start and end dates are required");
@@ -58,7 +55,6 @@ public class ReservationController {
                     return;
                 }
                 
-                // Crea la prenotazione
                 ReservationModel created = reservationService.createReservation(
                     requestDTO.getHabitationId(),
                     requestDTO.getUserId(),
@@ -70,7 +66,6 @@ public class ReservationController {
                    .json(created);
                 
             } catch (IllegalArgumentException e) {
-                // Errori di validazione
                 logger.warn("Validation error: {}", e.getMessage());
                 ctx.status(HttpStatus.BAD_REQUEST)
                    .result(e.getMessage());

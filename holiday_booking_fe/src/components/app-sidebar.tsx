@@ -19,15 +19,7 @@ const data = {
         {
           title: "Add new Habitation",
           url: "new-habitation",
-        },
-        {
-          title: "Add new Feedback for Habitation",
-          url: "#",
-        },
-        {
-          title: "View your Calendar",
-          url: "#",
-        },
+        }
       ],
     }
   ],

@@ -8,6 +8,7 @@ import { useUsers } from "@/context/context"
 import type { IHabitation, IHost, IReservation } from "@/types"
 import { Badge } from "./ui/badge"
 import { differenceInDays } from "date-fns"
+import { useNavigate } from "react-router"
 
 
 interface OverviewProps {
@@ -24,6 +25,12 @@ export const OverviewSection = (
 
     const [openDialog, setOpenDialog] = useState<DialogType>(null);
     const { habitations, hosts, reservations } = useUsers();
+    const navigate = useNavigate();
+
+    const handleHabitationClick = (habitation: IHabitation) => {
+        navigate('/new-reservation', { state: { habitation } });
+        setOpenDialog(null);
+    };
 
     const stats = [
         {
@@ -51,10 +58,10 @@ export const OverviewSection = (
             clickable: true
         },
         {
-            title: "Average number of beds",
+            title: "Average number of rooms",
             value: mediaNumberRooms,
             icon: Bed,
-            description: "For habitations",
+            description: "For habitation",
             dialogType: null,
             clickable: false
         },
@@ -130,7 +137,11 @@ export const OverviewSection = (
                                         {habitations.map((hab: IHabitation) => {
                                             const host = hab.host.user;
                                             return (
-                                                <TableRow key={hab.id}>
+                                                <TableRow 
+                                                    key={hab.id}
+                                                    className="cursor-pointer hover:bg-blue-100"
+                                                    onClick={() => handleHabitationClick(hab)}
+                                                >
                                                     <TableCell className="font-medium">{hab.name}</TableCell>
                                                     <TableCell>{host ? `${host.name} ${host.lastName}` : "-"}</TableCell>
                                                     <TableCell>{hab.address}</TableCell>

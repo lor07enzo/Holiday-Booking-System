@@ -10,19 +10,22 @@ import org.slf4j.LoggerFactory;
 
 import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.ReservationModel;
+import com.lorenzo.pelone.repository.HabitationRepository;
 import com.lorenzo.pelone.repository.ReservationRepository;
+import com.lorenzo.pelone.repository.UserRepository;
 
 public class ReservationService {
     private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
     private final ReservationRepository reservationRepository;
+    private final HabitationRepository habitationRepository;
+    private final UserRepository userRepository;
 
     public ReservationService() {
         this.reservationRepository = new ReservationRepository();
+        this.habitationRepository = new HabitationRepository();
+        this.userRepository = new UserRepository();
     }
 
-    /**
-     * Crea una nuova prenotazione
-     */
     public ReservationModel createReservation(int habitationId, int userId, LocalDate startDate, LocalDate endDate) {
         // Validazione date
         if (startDate.isAfter(endDate)) {
@@ -35,10 +38,8 @@ public class ReservationService {
         
         Connection conn = null;
         try {
-            // Verifica disponibilità (lancia eccezioni se qualcosa non va)
             reservationRepository.checkAvailability(habitationId, userId, startDate, endDate);
             
-            // Crea la prenotazione
             conn = DatabaseConfig.getConnection();
             conn.setAutoCommit(false);
             
@@ -46,18 +47,19 @@ public class ReservationService {
             
             conn.commit();
             
-            // Recupera i dati completi
             ReservationModel complete = reservationRepository.getReservationById(reservationId);
+
+            int hostCode = habitationRepository.getHostCodeByHabitationId(habitationId);
+            userRepository.updateSuperHostStatus(hostCode);
             
             logger.info("Reservation created successfully! ID: {}", reservationId);
             return complete;
             
         } catch (IllegalArgumentException e) {
-            // Errori di validazione - rilancia
             throw e;
             
         } catch (SQLException e) {
-            logger.error("Error creating reservation", e);
+            logger.error("Error creating reservation or updating host", e);
             if (conn != null) {
                 try {
                     conn.rollback();
@@ -65,7 +67,7 @@ public class ReservationService {
                     logger.error("Error rolling back", ex);
                 }
             }
-            throw new RuntimeException("Error creating reservation: " + e.getMessage(), e);
+            throw new RuntimeException("Error Server: " + e.getMessage(), e);
             
         } finally {
             if (conn != null) {
@@ -79,15 +81,16 @@ public class ReservationService {
         }
     }
 
-    /**
-     * Recupera tutte le prenotazioni
-     */
     public List<ReservationModel> getAllReservations() {
         try {
+            reservationRepository.updateExpiredReservations();
             return reservationRepository.allReservations();
         } catch (SQLException e) {
             logger.error("Error fetching reservations", e);
             throw new RuntimeException("Error fetching reservations: " + e.getMessage(), e);
         }
     }
+
+
+
 }

@@ -87,7 +87,6 @@ public class UserRepository {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                // Costruisci prima l'utente
                 UserModel user = new UserModel();
                 user.setId(rs.getInt("user_id"));
                 user.setName(rs.getString("name"));
@@ -96,7 +95,6 @@ public class UserRepository {
                 user.setAddress(rs.getString("address"));
                 user.setCreatedAt(rs.getTimestamp("user_created_at").toLocalDateTime());
     
-                // Poi costruisci l'host con l'utente
                 HostModel host = new HostModel();
                 host.setUser(user);
                 host.setHostCode(rs.getInt("host_code"));
@@ -185,6 +183,31 @@ public class UserRepository {
             
             logger.debug("Host inserted with code: {}", host.getHostCode());
             return host;
+        }
+    }
+
+    // metodo per swichare da host a superHost
+    public void updateSuperHostStatus(int hostCode) {
+        String sql = "UPDATE hosts SET super_host = (" +
+                     "  SELECT COUNT(r.id) >= 100 " +
+                     "  FROM reservations r " +
+                     "  JOIN habitations h ON r.habitation_id = h.id " +
+                     "  WHERE h.host_code = ? AND r.status != 'Annulled'" +
+                     ") WHERE host_code = ?";
+    
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, hostCode);
+            ps.setInt(2, hostCode);
+            
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                logger.debug("Status SuperHost aggiornato per il codice: {}", hostCode);
+            }
+        } catch (SQLException e) {
+            logger.error("Errore durante l'aggiornamento dello status SuperHost per: " + hostCode, e);
+            throw new RuntimeException("Errore database status SuperHost", e);
         }
     }
 

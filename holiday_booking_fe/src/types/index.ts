@@ -43,4 +43,5 @@ export interface IFeedback {
     title: string;
     text: string
     score: number;
+    createdAt?: string
 }
