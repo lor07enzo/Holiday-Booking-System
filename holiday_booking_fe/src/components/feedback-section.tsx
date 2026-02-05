@@ -1,9 +1,10 @@
 import { MessageSquare, Star } from "lucide-react";
 import { cn } from "@/lib/utils"; 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { IFeedback } from "@/types";
 
 interface FeedbackSectionProps {
-    feedbacks: Feedback[]; 
+    feedbacks: IFeedback[]; 
 }
 
 export const FeedbackSection = ({ feedbacks }: FeedbackSectionProps) => {

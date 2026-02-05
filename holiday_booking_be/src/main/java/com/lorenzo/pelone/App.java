@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lorenzo.pelone.config.DatabaseConfig;
+import com.lorenzo.pelone.controller.FeedbackController;
 import com.lorenzo.pelone.controller.HabitationController;
 import com.lorenzo.pelone.controller.ReservationController;
 import com.lorenzo.pelone.controller.UserController;
@@ -24,6 +25,7 @@ public class App
         UserController userController = new UserController();
         HabitationController habitationController = new HabitationController();
         ReservationController reservationController = new ReservationController();
+        FeedbackController feedbackController = new FeedbackController();
 
         DatabaseConfig.init("config.properties");
 
@@ -51,5 +53,6 @@ public class App
         userController.registerRoutes(app);
         habitationController.registerRoutes(app);
         reservationController.registerRoutes(app);
+        feedbackController.registerRoutes(app);
     }
 }

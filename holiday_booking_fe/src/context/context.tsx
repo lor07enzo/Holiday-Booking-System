@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { IUser, IHost, IHabitation, IReservation, IStatus } from "@/types";
+import type { IUser, IHost, IHabitation, IReservation, IStatus, IFeedback } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,6 +27,7 @@ interface UserContextType {
     hosts: IHost[];
     habitations: IHabitation[];
     reservations: IReservation[];
+    feedbacks: IFeedback[];
     loading: boolean;
     createUser: (payload: CreateUserPayload) => Promise<void>;
     createReservation: (payload: CreateReservationPayload) => Promise<void>;
@@ -34,6 +35,7 @@ interface UserContextType {
     fetchHosts: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
     fetchReservations: () => Promise<void>;
+    fetchFeedbacks: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -43,6 +45,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [hosts, setHosts] = useState<IHost[]>([]);
     const [habitations, setHabitations] = useState<IHabitation[]>([]);
     const [reservations, setReservations] = useState<IReservation[]>([]);
+    const [feedbacks, setFeedbacks] = useState<IFeedback[]>([]);
     const [loading, setLoading] = useState(false);
     
     const fetchUsers = async () => {
@@ -78,6 +81,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const fetchFeedbacks = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/v1/feedback`); 
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setFeedbacks(data);
+        } catch {
+            toast.error("Failed to load reviews");
+        }
+    };
+
     const fetchReservations = async () => {
         try {
             const res = await fetch(`${API_URL}/api/v1/reservations`);
@@ -88,10 +102,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             toast.error("Failed to load habitations");
         }
     }
-
-//     const getFeedbacksByHabitationId = (habitationId: number) => {
-//     return feedbacks.filter(fb => fb.reservation.habitationId === habitationId);
-// };
 
     const createUser = async (payload: CreateUserPayload) => {
         try {
@@ -151,10 +161,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         fetchUsers();
         fetchHabitations();
         fetchReservations();
+        fetchFeedbacks();
     }, []);
 
     return (
-        <UserContext.Provider value={{ users, hosts, habitations, reservations, loading, createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations }}>
+        <UserContext.Provider value={{ users, hosts, habitations, reservations, feedbacks, loading, createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchFeedbacks }}>
             {children}
         </UserContext.Provider>
     );

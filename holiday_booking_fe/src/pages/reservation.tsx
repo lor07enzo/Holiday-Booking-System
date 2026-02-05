@@ -18,7 +18,7 @@ export function Reservation() {
     const location = useLocation();
     const navigate = useNavigate();
     const habitation = location.state?.habitation as IHabitation | undefined;
-    const { users, reservations, createReservation, fetchReservations, loading } = useUsers();
+    const { users, reservations, feedbacks, createReservation, fetchReservations, loading } = useUsers();
 
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: undefined,
@@ -95,6 +95,10 @@ export function Reservation() {
             console.error("Error creating reservation:", error);
         }
     };
+
+    const filteredFeedbacks = feedbacks.filter(
+        fb => fb.reservation.habitation.id === habitation?.id
+    );
 
     if (!habitation) {
         return (
@@ -187,9 +191,10 @@ export function Reservation() {
                     </Card>
                 </div>
 
-                {/* <FeedbackSection
-                feedbacks={}
-                /> */}
+                {/* Sezione Feedback utenti */}
+                <FeedbackSection
+                feedbacks={filteredFeedbacks}
+                />
 
                 {/* Sezione Data e Utente */}
                 <div>
