@@ -1,18 +1,9 @@
 import * as React from "react"
 
-import { SearchForm } from "@/components/search-form"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail} from "@/components/ui/sidebar"
+import { Separator } from "./ui/separator"
+
 
 // This is sample data.
 const data = {
@@ -24,10 +15,6 @@ const data = {
         {
           title: "Add new User / Host",
           url: "new-user",
-        },
-        {
-          title: "Add new Booking",
-          url: "#",
         },
         {
           title: "Add new Habitation",
@@ -51,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarHeader>
         <span className="font-bold text-center text-2xl py-2">HolidayBooking</span>
-        <SearchForm />
+        <Separator/>
       </SidebarHeader>
       <SidebarContent>
         {data.navMain.map((item) => (

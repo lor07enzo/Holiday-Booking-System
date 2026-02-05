@@ -22,68 +22,64 @@ public class ReservationController {
     }
 
     public void registerRoutes(Javalin app) {
+        // GET - Lista tutte le prenotazioni
         app.get(BASE_PATH + "/reservations", ctx -> {
             try {
-                List<ReservationModel> reservations =
-                        reservationService.getAllReservations();
-
-                ctx.status(HttpStatus.OK).json(reservations);
-
+                List<ReservationModel> reservations = reservationService.getAllReservations();
+                ctx.json(reservations);
             } catch (Exception e) {
                 logger.error("Error fetching reservations", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservations");
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .result("Error fetching reservations");
             }
         });
 
+        // POST - Crea una nuova prenotazione
         app.post(BASE_PATH + "/reservations", ctx -> {
             try {
-                CreateReservationRequest request =
-                        ctx.bodyAsClass(CreateReservationRequest.class);
-
-                if (request == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST).result("Request body is required");
-                    return;
-                }
-
-                if (request.getHabitationId() <= 0) {
-                    ctx.status(HttpStatus.BAD_REQUEST).result("Valid habitationId is required");
-                    return;
-                }
-
-                if (request.getUserId() <= 0) {
+                CreateReservationRequest requestDTO = ctx.bodyAsClass(CreateReservationRequest.class);
+                
+                // Validazione input base
+                if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null) {
                     ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Valid userId is required");
+                       .result("Start and end dates are required");
                     return;
                 }
-
-                if (request.getStartDate() == null ||
-                    request.getEndDate() == null) {
-
+                
+                if (requestDTO.getHabitationId() <= 0) {
                     ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("StartDate and EndDate are required");
+                       .result("Valid habitation ID is required");
                     return;
                 }
-
+                
+                if (requestDTO.getUserId() <= 0) {
+                    ctx.status(HttpStatus.BAD_REQUEST)
+                       .result("Valid user ID is required");
+                    return;
+                }
+                
+                // Crea la prenotazione
                 ReservationModel created = reservationService.createReservation(
-                                request.getHabitationId(),
-                                request.getUserId(),
-                                request.getStartDate(),
-                                request.getEndDate()
-                            );
-
-                ctx.status(HttpStatus.CREATED).json(created);
-
+                    requestDTO.getHabitationId(),
+                    requestDTO.getUserId(),
+                    requestDTO.getStartDate(),
+                    requestDTO.getEndDate()
+                );
+                
+                ctx.status(HttpStatus.CREATED)
+                   .json(created);
+                
             } catch (IllegalArgumentException e) {
-                logger.warn("Reservation validation error: ", e.getMessage());
+                // Errori di validazione
+                logger.warn("Validation error: {}", e.getMessage());
                 ctx.status(HttpStatus.BAD_REQUEST)
                    .result(e.getMessage());
-
+                   
             } catch (Exception e) {
                 logger.error("Error creating reservation", e);
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)
                    .result("Error creating reservation");
             }
         });
-    
     }
 }

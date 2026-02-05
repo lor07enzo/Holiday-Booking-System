@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { IUser, IHost, IHabitation } from "@/types/types";
+import type { IUser, IHost, IHabitation, IReservation } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,11 +18,13 @@ interface UserContextType {
     users: IUser[];
     hosts: IHost[];
     habitations: IHabitation[];
+    reservations: IReservation[];
     loading: boolean;
     createUser: (payload: CreateUserPayload) => Promise<void>;
-    fetchHosts: () => Promise<void>;
     fetchUsers: () => Promise<void>;
+    fetchHosts: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
+    fetchReservations: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -31,6 +33,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [users, setUsers] = useState<IUser[]>([]);
     const [hosts, setHosts] = useState<IHost[]>([]);
     const [habitations, setHabitations] = useState<IHabitation[]>([]);
+    const [reservations, setReservations] = useState<IReservation[]>([]);
     const [loading, setLoading] = useState(false);
     
     const fetchUsers = async () => {
@@ -66,6 +69,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const fetchReservations = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/v1/reservations`);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setReservations(data);
+        } catch {
+            toast.error("Failed to load habitations");
+        }
+    }
+
     const createUser = async (payload: CreateUserPayload) => {
         try {
             setLoading(true);
@@ -94,10 +108,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         fetchHosts();
         fetchUsers();
         fetchHabitations();
+        fetchReservations();
     }, []);
 
     return (
-        <UserContext.Provider value={{ users, hosts, habitations, loading, createUser, fetchHosts, fetchUsers, fetchHabitations }}>
+        <UserContext.Provider value={{ users, hosts, habitations, reservations, loading, createUser, fetchHosts, fetchUsers, fetchHabitations, fetchReservations }}>
             {children}
         </UserContext.Provider>
     );

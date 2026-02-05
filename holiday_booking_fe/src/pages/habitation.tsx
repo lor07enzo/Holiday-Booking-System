@@ -11,7 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { DateRange } from "react-day-picker";
-import { useUsers } from "@/context/user-context";
+import { useUsers } from "@/context/context";
 
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -44,7 +44,7 @@ export function Habitation() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const form = e.currentTarget; 
+        const form = e.currentTarget;
         const formData = new FormData(form);
 
         const data = {
@@ -117,7 +117,7 @@ export function Habitation() {
         <div className=" w-full flex flex-col h-screen justify-center items-center">
             <Card className="w-full max-w-4xl">
                 <CardHeader>
-                    <CardTitle>Create a New Habitation</CardTitle>
+                    <CardTitle className="text-xl">Create a New Habitation</CardTitle>
                     <CardDescription>
                         Enter your information below to create your habitation.
                     </CardDescription>
@@ -135,12 +135,12 @@ export function Habitation() {
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectLabel>Hosts</SelectLabel>
-                                                {hosts.length === 0 ? ( 
-                                                    <SelectItem value="null">No hosts Found</SelectItem> 
+                                                {hosts.length === 0 ? (
+                                                    <SelectItem value="null">No hosts Found</SelectItem>
                                                 ) : (
                                                     hosts.map(host => (
                                                         <SelectItem key={host.hostCode} value={String(host.hostCode)}>
-                                                            Host - {host.hostCode}
+                                                            Host - {host.user.email}
                                                         </SelectItem>
                                                     ))
                                                 )}
@@ -158,10 +158,10 @@ export function Habitation() {
 
                                 <Field className="gap-1">
                                     <FieldLabel htmlFor="description">Description</FieldLabel>
-                                    <Input 
-                                        id="description" 
-                                        name="description" 
-                                        placeholder="Description of the house" 
+                                    <Input
+                                        id="description"
+                                        name="description"
+                                        placeholder="Description of the house"
                                         aria-invalid={!!errors.description} />
                                     {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
                                 </Field>
@@ -236,7 +236,7 @@ export function Habitation() {
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                    {errors.startAvailable && <p className="text-red-500 text-sm">{errors.startAvailable}</p>} 
+                                    {errors.startAvailable && <p className="text-red-500 text-sm">{errors.startAvailable}</p>}
                                     {errors.endAvailable && <p className="text-red-500 text-sm">{errors.endAvailable}</p>}
                                 </Field>
                             </div>

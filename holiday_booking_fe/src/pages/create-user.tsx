@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useUsers } from "@/context/user-context";
+import { useUsers } from "@/context/context";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -44,7 +44,7 @@ export function CreateUser() {
         if (!parsed.success) {
             const fieldErrors: Record<string, string> = {};
             parsed.error.issues.forEach(issue => {
-              fieldErrors[issue.path[0] as string] = issue.message;
+                fieldErrors[issue.path[0] as string] = issue.message;
             });
             setErrors(fieldErrors);
             return;
@@ -72,7 +72,7 @@ export function CreateUser() {
         <div className=" w-full flex flex-col h-screen justify-center items-center">
             <Card className="w-full max-w-4xl">
                 <CardHeader>
-                    <CardTitle>Create a new User</CardTitle>
+                    <CardTitle className="text-xl">Create a new User</CardTitle>
                     <CardDescription>
                         Enter your information below to create your account
                     </CardDescription>
@@ -83,22 +83,22 @@ export function CreateUser() {
                             <div className="grid grid-cols-2 gap-4">
                                 <Field>
                                     <FieldLabel htmlFor="name">Name</FieldLabel>
-                                    <Input id="name" name="name" placeholder="John" aria-invalid={!!errors.name}  />
+                                    <Input id="name" name="name" placeholder="John" aria-invalid={!!errors.name} />
                                     {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
                                 </Field>
 
                                 <Field>
                                     <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
-                                    <Input id="lastName" name="lastName" placeholder="Doe" aria-invalid={!!errors.lastName}  />
+                                    <Input id="lastName" name="lastName" placeholder="Doe" aria-invalid={!!errors.lastName} />
                                     {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
                                 </Field>
 
                                 <Field>
                                     <FieldLabel htmlFor="email">Email</FieldLabel>
-                                    <Input id="email" name="email" type="email" placeholder="m@example.com" aria-invalid={!!errors.email} />  
+                                    <Input id="email" name="email" type="email" placeholder="m@example.com" aria-invalid={!!errors.email} />
                                     {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                                 </Field>
-                                
+
                                 <Field>
                                     <FieldLabel htmlFor="street">Street</FieldLabel>
                                     <Input id="street" name="street" placeholder="Via Roma, 56" aria-invalid={!!errors.street} />
@@ -133,7 +133,7 @@ export function CreateUser() {
                                     </label>
                                 </div>
                             </Field>
-                            
+
                             <Button type="submit" disabled={loading}>
                                 {loading ? "Creating..." : "Create Account"}
                             </Button>

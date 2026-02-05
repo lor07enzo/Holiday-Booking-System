@@ -1,6 +1,7 @@
 package com.lorenzo.pelone.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,4 +17,5 @@ public class ReservationModel {
     private String status; // Confirmed | Annulled | Completed
     private LocalDate startDate;
     private LocalDate endDate;
+    private LocalDateTime createdAt;
 }

@@ -1,185 +1,158 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { MapPin, User, Home, FileText, Calendar } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { date, z } from "zod";
-import type { DateRange } from "react-day-picker";
-import { useUsers } from "@/context/user-context";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
-const CreateReservationFormSchema = z.object({
-    habitation: z.number(),
-    user: z.number(),
-    status: z.string().min(1, "").max(5, ""),
-    startDate: z.date,
-    endDate: z.date
-});
-
-export type CreateReservationFormData = z.infer<typeof CreateReservationFormSchema>;
 
 export function Reservation() {
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const { users, hosts, habitations } = useUsers();
-    const [date, setDate] = useState<DateRange | undefined>(undefined);
+    const [checkInDate, setCheckInDate] = useState("");
+    const [checkOutDate, setCheckOutDate] = useState("");
+    const [selectedUser, setSelectedUser] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const data = {}
-
-         const parsed = createHabitationFormSchema.safeParse(data);
-
-        if (!parsed.success) {
-            const fieldErrors: Record<string, string> = {};
-            parsed.error.issues.forEach(issue => {
-                fieldErrors[issue.path[0] as string] = issue.message;
-            });
-            setErrors(fieldErrors);
-            return;
-        }
-
-        setErrors({});
-    }
+    const users = [
+        { id: "1", name: "Giovanni Bianchi" },
+        { id: "2", name: "Anna Verdi" },
+        { id: "3", name: "Paolo Marini" },
+        { id: "4", name: "Laura Conti" },
+        { id: "5", name: "Marco Ferrari" },
+    ];
 
     return (
-        <div className=" w-full flex flex-col h-screen justify-center items-center">
-            <Card className="w-full max-w-4xl">
-                <CardHeader>
-                    <CardTitle>Create a New Reservation</CardTitle>
-                    <CardDescription>
-                        Enter your information below to create your reservation.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit}>
-                        <FieldGroup >
-                            <div className="grid grid-cols-2 gap-4">
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="hostCode">Host Code</FieldLabel>
-                                    <Select name="hostCode" value={selectedHostCode} onValueChange={setSelectedHostCode}>
-                                        <SelectTrigger className="w-full " aria-invalid={!!errors.hostCode}>
-                                            <SelectValue placeholder="Select a Host" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Hosts</SelectLabel>
-                                                {hosts.length === 0 ? ( 
-                                                    <SelectItem value="null">No hosts Found</SelectItem> 
-                                                ) : (
-                                                    hosts.map(host => (
-                                                        <SelectItem key={host.hostCode} value={String(host.hostCode)}>
-                                                            Host - {host.hostCode}
-                                                        </SelectItem>
-                                                    ))
-                                                )}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.hostCode && <p className="text-red-500 text-sm">{errors.hostCode}</p>}
-                                </Field>
+        <div className="h-screen flex justify-center items-center">
+            <div className="p-6 w-full max-w-4xl flex flex-col gap-6 bg-white rounded-lg shadow-lg overflow-y-auto max-h-screen">
 
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="name">Name</FieldLabel>
-                                    <Input id="name" name="name" placeholder="Habitation in Via Roma 56" aria-invalid={!!errors.name} />
-                                    {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-                                </Field>
+                {/* Intestazione */}
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold">Attico Vista Mare</h1>
+                    <p className="text-muted-foreground flex gap-1 items-center">
+                        <MapPin className="h-5 w-5" /> Via Roma, 56, Milano
+                    </p>
+                </div>
 
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="description">Description</FieldLabel>
-                                    <Input 
-                                        id="description" 
-                                        name="description" 
-                                        placeholder="Description of the house" 
-                                        aria-invalid={!!errors.description} />
-                                    {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
-                                </Field>
+                <Separator />
 
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="street">Street</FieldLabel>
-                                    <Input id="street" name="street" placeholder="Via Roma, 56" aria-invalid={!!errors.street} />
-                                    {errors.street && <p className="text-red-500 text-sm">{errors.street}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="city">City</FieldLabel>
-                                    <Input id="city" name="city" placeholder="Firenze" aria-invalid={!!errors.city} />
-                                    {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="country">Country</FieldLabel>
-                                    <Input id="country" name="country" placeholder="Italy" aria-invalid={!!errors.country} />
-                                    {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="floor">Number of Floors</FieldLabel>
-                                    <Input id="floor" type="number" name="floor" placeholder="ex. 1" aria-invalid={!!errors.floor} />
-                                    {errors.floor && <p className="text-red-500 text-sm">{errors.floor}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="rooms">Number of Rooms</FieldLabel>
-                                    <Input id="rooms" type="number" name="rooms" placeholder="ex. 2" aria-invalid={!!errors.rooms} />
-                                    {errors.rooms && <p className="text-red-500 text-sm">{errors.rooms}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel htmlFor="price">Price for Night</FieldLabel>
-                                    <Input id="price" type="number" name="price" placeholder="€50" aria-invalid={!!errors.price} />
-                                    {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
-                                </Field>
-
-                                <Field className="gap-1">
-                                    <FieldLabel >Select the Availability Period</FieldLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild aria-invalid={(!!errors.from) || (!!errors.to)}>
-                                            <Button
-                                                variant="outline"
-                                                id="date-picker-range"
-                                                className="justify-start px-2.5 font-normal"
-                                            >
-                                                <CalendarIcon />
-                                                {date?.from ? (
-                                                    date.to ? (
-                                                        <>
-                                                            {format(date.from, "yyyy-MM-dd")} -{" "}
-                                                            {format(date.to, "yyyy-MM-dd")}
-                                                        </>
-                                                    ) : (
-                                                        format(date.from, "yyyy-MM-dd")
-                                                    )
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="range"
-                                                defaultMonth={date?.from}
-                                                selected={date}
-                                                onSelect={setDate}
-                                                numberOfMonths={2}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    {errors.startAvailable && <p className="text-red-500 text-sm">{errors.startAvailable}</p>} 
-                                    {errors.endAvailable && <p className="text-red-500 text-sm">{errors.endAvailable}</p>}
-                                </Field>
+                {/* Sezione Host */}
+                <div>
+                    <div className="flex items-center gap-2 mb-4">
+                        <User className="h-6 w-6" />
+                        <h2 className="text-2xl font-semibold">Host</h2>
+                    </div>
+                    <Card className="p-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                <User className="h-6 w-6" />
                             </div>
+                            <div>
+                                <p className="font-semibold">Marco Rossi</p>
+                                <p className="text-sm text-muted-foreground">Host verificato • 4.8 ⭐</p>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
 
-                            <Button type="submit">Add Habitation</Button>
-                        </FieldGroup>
-                    </form>
-                </CardContent>
-            </Card>
+                {/* Sezione Dettagli Abitazione */}
+                <div>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Home className="h-6 w-6" />
+                        <h2 className="text-2xl font-semibold">Dettagli dell'Abitazione</h2>
+                    </div>
+                    <Card className="p-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-sm text-muted-foreground">Tipo</p>
+                                <p className="font-semibold">Attico</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Camere da letto</p>
+                                <p className="font-semibold">3</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Bagni</p>
+                                <p className="font-semibold">2</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Ospiti</p>
+                                <p className="font-semibold">Fino a 8</p>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Sezione Descrizione */}
+                <div>
+                    <div className="flex items-center gap-2 mb-4">
+                        <FileText className="h-6 w-6" />
+                        <h2 className="text-2xl font-semibold">Descrizione</h2>
+                    </div>
+                    <Card className="p-4">
+                        <p className="text-sm leading-relaxed">
+                            Bellissimo attico con vista mare sul Lago di Como. Completamente arredato con materiali di qualità, dispone di una ampia terrazza panoramica, cucina moderna e tutti i comfort necessari per una vacanza indimenticabile.
+                        </p>
+                    </Card>
+                </div>
+
+                {/* Sezione Date Check-in/Check-out */}
+                <div>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="h-6 w-6" />
+                        <h2 className="text-2xl font-semibold">Seleziona le Date</h2>
+                    </div>
+                    <Card className="p-4">
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="check-in">Data Check-in</Label>
+                                <Input
+                                    id="check-in"
+                                    type="date"
+                                    value={checkInDate}
+                                    onChange={(e) => setCheckInDate(e.target.value)}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="check-out">Data Check-out</Label>
+                                <Input
+                                    id="check-out"
+                                    type="date"
+                                    value={checkOutDate}
+                                    onChange={(e) => setCheckOutDate(e.target.value)}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="user-select">Seleziona Utente</Label>
+                                <Select value={selectedUser} onValueChange={setSelectedUser}>
+                                    <SelectTrigger id="user-select">
+                                        <SelectValue placeholder="Scegli un utente" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {users.map((user) => (
+                                            <SelectItem key={user.id} value={user.id}>
+                                                {user.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Bottone Prenota */}
+                <Button className="w-full py-6 text-lg font-semibold">
+                    Prenota Ora
+                </Button>
+            </div>
         </div>
     )
 }
