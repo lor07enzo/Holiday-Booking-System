@@ -96,9 +96,9 @@ export function Reservation() {
         }
     };
 
-    const filteredFeedbacks = feedbacks.filter(
-        fb => fb.reservation.habitation.id === habitation?.id
-    );
+    // const filteredFeedbacks = feedbacks.filter(
+    //     fb => fb.reservation.habitation.id === habitation?.id
+    // );
 
     if (!habitation) {
         return (
@@ -192,9 +192,9 @@ export function Reservation() {
                 </div>
 
                 {/* Sezione Feedback utenti */}
-                <FeedbackSection
+                {/* <FeedbackSection
                 feedbacks={filteredFeedbacks}
-                />
+                /> */}
 
                 {/* Sezione Data e Utente */}
                 <div>
