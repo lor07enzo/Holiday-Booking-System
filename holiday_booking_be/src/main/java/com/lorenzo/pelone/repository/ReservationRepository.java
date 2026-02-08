@@ -21,28 +21,34 @@ import com.lorenzo.pelone.model.UserModel;
 public class ReservationRepository {
     private static final Logger logger = LoggerFactory.getLogger(ReservationRepository.class);
 
-    
-    public int insertReservation(Connection conn, int habitationId, int userId, 
-                                 LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "INSERT INTO reservations (habitation_id, user_id, status, start_date, end_date) " +
-                     "VALUES (?, ?, 'Confirmed', ?, ?) RETURNING id";
+
+    public List<ReservationModel> allReservations() throws SQLException {
+        List<ReservationModel> reservations = new ArrayList<>();
         
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, habitationId);
-            ps.setInt(2, userId);
-            ps.setDate(3, Date.valueOf(startDate));
-            ps.setDate(4, Date.valueOf(endDate));
+        String sql = "SELECT r.*, " +
+                     "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
+                     "h.floor, h.rooms, h.price, h.start_available, h.end_available, h.created_at as hab_created_at, " +
+                     "u.id as user_id, u.name as user_name, u.last_name, u.email, u.address as user_address, u.created_at as user_created_at, " +
+                     "host_u.id as host_user_id, host_u.name as host_name, host_u.last_name as host_last_name, " +
+                     "host_u.email as host_email, host_u.address as host_address, host_u.created_at as host_created_at, " +
+                     "ho.host_code, ho.super_host " +
+                     "FROM reservations r " +
+                     "JOIN habitations h ON r.habitation_id = h.id " +
+                     "JOIN users u ON r.user_id = u.id " +
+                     "JOIN hosts ho ON h.host_code = ho.host_code " +
+                     "JOIN users host_u ON ho.user_id = host_u.id";
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ResultSet rs = ps.executeQuery();
             
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                logger.debug("Reservation inserted with ID: {}", id);
-                return id;
+            while (rs.next()) {
+                reservations.add(buildReservationFromResultSet(rs));
             }
-            
-            throw new SQLException("Failed to insert reservation");
         }
+        
+        return reservations;
     }
 
     public ReservationModel getReservationById(int reservationId) throws SQLException {
@@ -74,33 +80,46 @@ public class ReservationRepository {
         }
     }
 
-    public List<ReservationModel> allReservations() throws SQLException {
-        List<ReservationModel> reservations = new ArrayList<>();
-        
-        String sql = "SELECT r.*, " +
-                     "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
-                     "h.floor, h.rooms, h.price, h.start_available, h.end_available, h.created_at as hab_created_at, " +
-                     "u.id as user_id, u.name as user_name, u.last_name, u.email, u.address as user_address, u.created_at as user_created_at, " +
-                     "host_u.id as host_user_id, host_u.name as host_name, host_u.last_name as host_last_name, " +
-                     "host_u.email as host_email, host_u.address as host_address, host_u.created_at as host_created_at, " +
-                     "ho.host_code, ho.super_host " +
-                     "FROM reservations r " +
-                     "JOIN habitations h ON r.habitation_id = h.id " +
-                     "JOIN users u ON r.user_id = u.id " +
-                     "JOIN hosts ho ON h.host_code = ho.host_code " +
-                     "JOIN users host_u ON ho.user_id = host_u.id";
+    public int reservationsLastMonth() throws SQLException {
+        List<ReservationModel> list = new ArrayList<>();
+        String sql = "SELECT r.*, h.name as h_name, u.name as u_name " +
+                    "FROM reservations r " +
+                    "JOIN habitations h ON r.habitation_id = h.id " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "WHERE r.created_at >= NOW() - INTERVAL '1 month'";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+            list.add(mapResultSetToReservation(rs));
+        }
+        }
+        return 0;
+    }
+
+    public int insertReservation(Connection conn, int habitationId, int userId, 
+                                 LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "INSERT INTO reservations (habitation_id, user_id, status, start_date, end_date) " +
+                     "VALUES (?, ?, 'Confirmed', ?, ?) RETURNING id";
+        
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, habitationId);
+            ps.setInt(2, userId);
+            ps.setDate(3, Date.valueOf(startDate));
+            ps.setDate(4, Date.valueOf(endDate));
             
             ResultSet rs = ps.executeQuery();
             
-            while (rs.next()) {
-                reservations.add(buildReservationFromResultSet(rs));
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                logger.debug("Reservation inserted with ID: {}", id);
+                return id;
             }
+            
+            throw new SQLException("Failed to insert reservation");
         }
-        
-        return reservations;
     }
 
     public void checkAvailability(int habitationId, int userId, LocalDate startDate, LocalDate endDate) throws SQLException {
@@ -148,7 +167,6 @@ public class ReservationRepository {
     }
 
     private ReservationModel buildReservationFromResultSet(ResultSet rs) throws SQLException {
-       
         UserModel user = new UserModel();
         user.setId(rs.getInt("user_id"));
         user.setName(rs.getString("user_name"));

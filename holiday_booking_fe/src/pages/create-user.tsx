@@ -84,44 +84,44 @@ export function CreateUser() {
                     <form onSubmit={handleSubmit}>
                         <FieldGroup >
                             <div className="grid grid-cols-2 gap-4">
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="name">Name</FieldLabel>
                                     <Input id="name" name="name" placeholder="John" aria-invalid={!!errors.name} />
                                     {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
                                 </Field>
 
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
                                     <Input id="lastName" name="lastName" placeholder="Doe" aria-invalid={!!errors.lastName} />
                                     {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
                                 </Field>
 
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="email">Email</FieldLabel>
                                     <Input id="email" name="email" type="email" placeholder="m@example.com" aria-invalid={!!errors.email} />
                                     {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                                 </Field>
 
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="street">Street</FieldLabel>
                                     <Input id="street" name="street" placeholder="Via Roma, 56" aria-invalid={!!errors.street} />
                                     {errors.street && <p className="text-red-500 text-sm">{errors.street}</p>}
                                 </Field>
 
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="city">City</FieldLabel>
                                     <Input id="city" name="city" placeholder="Firenze" aria-invalid={!!errors.city} />
                                     {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
                                 </Field>
 
-                                <Field>
+                                <Field className="gap-1">
                                     <FieldLabel htmlFor="country">Country</FieldLabel>
                                     <Input id="country" name="country" placeholder="Italy" aria-invalid={!!errors.country} />
                                     {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
                                 </Field>
                             </div>
 
-                            <Field>
+                            <Field className="gap-1">
                                 <FieldLabel htmlFor="isHost">User type</FieldLabel>
                                 <div className="flex items-center gap-2">
                                     <input

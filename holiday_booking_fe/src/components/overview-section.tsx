@@ -163,7 +163,7 @@ export const OverviewSection = (
             <Dialog open={openDialog === "host"} onOpenChange={(open) => !open && setOpenDialog(null)}>
                 <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
                     <DialogHeader className="flex-shrink-0">
-                        <DialogTitle>Tutti gli Host</DialogTitle>
+                        <DialogTitle>All Hosts</DialogTitle>
                         <DialogDescription>
                             List of all hosts in this system
                         </DialogDescription>
@@ -211,8 +211,8 @@ export const OverviewSection = (
             {/* Dialog Prenotazioni */}
             <Dialog open={openDialog === "reservation"} onOpenChange={(open) => !open && setOpenDialog(null)}>
                 <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
-                    <DialogHeader className="flex-shrink-0">
-                        <DialogTitle>Tutte le Prenotazioni</DialogTitle>
+                    <DialogHeader className="shrink-0">
+                        <DialogTitle>All Reservation</DialogTitle>
                         <DialogDescription>
                             List of all reservations in this system
                         </DialogDescription>
@@ -228,7 +228,7 @@ export const OverviewSection = (
                                             <TableHead className="whitespace-nowrap">Check-in</TableHead>
                                             <TableHead className="whitespace-nowrap">Check-out</TableHead>
                                             <TableHead className="whitespace-nowrap">Status</TableHead>
-                                            <TableHead className="whitespace-nowrap text-right">Totale</TableHead>
+                                            <TableHead className="whitespace-nowrap text-right">Total</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

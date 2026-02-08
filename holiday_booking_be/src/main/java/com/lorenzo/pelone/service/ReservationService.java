@@ -26,6 +26,26 @@ public class ReservationService {
         this.userRepository = new UserRepository();
     }
 
+
+    public List<ReservationModel> getAllReservations() {
+        try {
+            reservationRepository.updateExpiredReservations();
+            return reservationRepository.allReservations();
+        } catch (SQLException e) {
+            logger.error("Error fetching reservations", e);
+            throw new RuntimeException("Error fetching reservations: " + e.getMessage(), e);
+        }
+    }
+
+    public int getCountLastMonth() {
+        try {
+            return reservationRepository.countReservationsLastMonth();
+        } catch (SQLException e) {
+            logger.error("Errore nel conteggio prenotazioni", e);
+            return 0;
+        }
+    }
+
     public ReservationModel createReservation(int habitationId, int userId, LocalDate startDate, LocalDate endDate) {
         // Validazione date
         if (startDate.isAfter(endDate)) {
@@ -81,16 +101,5 @@ public class ReservationService {
         }
     }
 
-    public List<ReservationModel> getAllReservations() {
-        try {
-            reservationRepository.updateExpiredReservations();
-            return reservationRepository.allReservations();
-        } catch (SQLException e) {
-            logger.error("Error fetching reservations", e);
-            throw new RuntimeException("Error fetching reservations: " + e.getMessage(), e);
-        }
-    }
-
-
-
+    
 }
