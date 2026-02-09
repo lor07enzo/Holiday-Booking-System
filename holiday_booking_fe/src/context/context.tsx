@@ -27,6 +27,7 @@ interface UserContextType {
     hosts: IHost[];
     habitations: IHabitation[];
     reservations: IReservation[];
+    resLastMonth: IReservation[];
     feedbacks: IFeedback[];
     loading: boolean;
     createUser: (payload: CreateUserPayload) => Promise<void>;
@@ -35,6 +36,7 @@ interface UserContextType {
     fetchHosts: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
     fetchReservations: () => Promise<void>;
+    fetchResLastMonth: () => Promise<void>;
     fetchFeedbacks: () => Promise<void>;
 }
 
@@ -45,6 +47,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [hosts, setHosts] = useState<IHost[]>([]);
     const [habitations, setHabitations] = useState<IHabitation[]>([]);
     const [reservations, setReservations] = useState<IReservation[]>([]);
+    const [resLastMonth, setResLastMonth] = useState<IReservation[]>([]);
     const [feedbacks, setFeedbacks] = useState<IFeedback[]>([]);
     const [loading, setLoading] = useState(false);
     
@@ -81,6 +84,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const fetchReservations = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/v1/reservations`);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setReservations(data);
+        } catch {
+            toast.error("Failed to load reservations");
+        }
+    }
+
+    const fetchResLastMonth = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/v1/reservations/last-month`);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setResLastMonth(data);
+        } catch {
+            toast.error("Failed to load reservations for last month");
+        }
+    }
+
     const fetchFeedbacks = async () => {
         try {
             const res = await fetch(`${API_URL}/api/v1/feedback`); 
@@ -91,17 +116,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             toast.error("Failed to load reviews");
         }
     };
-
-    const fetchReservations = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/v1/reservations`);
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            setReservations(data);
-        } catch {
-            toast.error("Failed to load habitations");
-        }
-    }
 
     const createUser = async (payload: CreateUserPayload) => {
         try {
@@ -161,11 +175,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         fetchUsers();
         fetchHabitations();
         fetchReservations();
+        fetchResLastMonth();
         fetchFeedbacks();
     }, []);
 
     return (
-        <UserContext.Provider value={{ users, hosts, habitations, reservations, feedbacks, loading, createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchFeedbacks }}>
+        <UserContext.Provider 
+          value={{ users, hosts, habitations, reservations, resLastMonth, feedbacks, loading, 
+            createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth,  fetchFeedbacks }}>
             {children}
         </UserContext.Provider>
     );

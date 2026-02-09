@@ -3,15 +3,15 @@ import { useUsers } from "@/context/context";
 
 
 function Homepage() {
-    const { hosts, habitations, reservations, loading } = useUsers();
+    const { hosts, habitations, resLastMonth, loading } = useUsers();
 
 
     const totalReservationsBeds = habitations.length > 0 ? habitations.reduce((sum, h) => sum + h.rooms, 0) / habitations.length : 0;
-    
+
 
     const totalHabitations = habitations.length;
     const totalHosts = hosts.length;
-    const totalReservations = reservations.length;
+    const reservationsLastMonth = resLastMonth.length;
     const mediaNumberRooms = Math.round(totalReservationsBeds * 10) / 10;
 
 
@@ -26,10 +26,10 @@ function Homepage() {
                 <div className="container mx-auto px-4 space-y-8">
                     <section>
                         <h1 className="font-bold text-xl text-muted-foreground py-4">Overview</h1>
-                        <OverviewSection 
+                        <OverviewSection
                             totalHabitations={totalHabitations}
                             totalHosts={totalHosts}
-                            totalReservations={totalReservations}
+                            reservationsLastMonth={reservationsLastMonth}
                             mediaNumberRooms={mediaNumberRooms}
                         />
                     </section>

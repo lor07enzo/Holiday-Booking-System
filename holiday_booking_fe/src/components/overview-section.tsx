@@ -14,17 +14,17 @@ import { useNavigate } from "react-router"
 interface OverviewProps {
     totalHabitations: number
     totalHosts: number
-    totalReservations: number
+    reservationsLastMonth: number
     mediaNumberRooms: number
 }
 
 type DialogType = "habitation" | "host" | "reservation" | null
 
 export const OverviewSection = (
-    { totalHabitations, totalHosts, totalReservations, mediaNumberRooms }: OverviewProps) => {
+    { totalHabitations, totalHosts, reservationsLastMonth: totalReservations, mediaNumberRooms }: OverviewProps) => {
 
     const [openDialog, setOpenDialog] = useState<DialogType>(null);
-    const { habitations, hosts, reservations } = useUsers();
+    const { habitations, hosts, resLastMonth } = useUsers();
     const navigate = useNavigate();
 
     const handleHabitationClick = (habitation: IHabitation) => {
@@ -70,15 +70,15 @@ export const OverviewSection = (
 
     const statusColor = (status: IReservation["status"]) => {
         switch (status) {
-      case "Confirmed":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "Completed":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-      case "Annulled":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      default:
-        return ""
-    }
+            case "Confirmed":
+                return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+            case "Completed":
+                return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            case "Annulled":
+                return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+            default:
+                return ""
+        }
     }
 
 
@@ -137,7 +137,7 @@ export const OverviewSection = (
                                         {habitations.map((hab: IHabitation) => {
                                             const host = hab.host.user;
                                             return (
-                                                <TableRow 
+                                                <TableRow
                                                     key={hab.id}
                                                     className="cursor-pointer hover:bg-blue-100"
                                                     onClick={() => handleHabitationClick(hab)}
@@ -232,7 +232,7 @@ export const OverviewSection = (
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {reservations.map((res: IReservation) => {
+                                        {resLastMonth.map((res: IReservation) => {
                                             const nights = differenceInDays(
                                                 new Date(res.endDate),
                                                 new Date(res.startDate)
@@ -241,7 +241,7 @@ export const OverviewSection = (
                                             return (
                                                 <TableRow key={res.id}>
                                                     <TableCell className="font-medium whitespace-nowrap">
-                                                        {  (res.user.name) + " " + (res.user.lastName )|| "-"}
+                                                        {(res.user.name) + " " + (res.user.lastName) || "-"}
                                                     </TableCell>
                                                     <TableCell className="whitespace-nowrap">{res.habitation?.name || "-"}</TableCell>
                                                     <TableCell className="whitespace-nowrap">{new Date(res.startDate).toLocaleDateString("it-IT")}</TableCell>

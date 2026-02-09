@@ -37,12 +37,12 @@ public class ReservationService {
         }
     }
 
-    public int getCountLastMonth() {
+    public List<ReservationModel> getReservationsLastMonth() {
         try {
-            return reservationRepository.countReservationsLastMonth();
+            return reservationRepository.reservationsLastMonth();
         } catch (SQLException e) {
-            logger.error("Errore nel conteggio prenotazioni", e);
-            return 0;
+            logger.error("Errore nel filtraggio delle prenotazioni", e);
+            throw new RuntimeException("Error fetching reservations for last month: " + e.getMessage(), e);
         }
     }
 

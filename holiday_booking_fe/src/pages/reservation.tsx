@@ -18,7 +18,7 @@ export function Reservation() {
     const location = useLocation();
     const navigate = useNavigate();
     const habitation = location.state?.habitation as IHabitation | undefined;
-    const { users, reservations, feedbacks, createReservation, fetchReservations, loading } = useUsers();
+    const { users, resLastMonth, feedbacks, createReservation, fetchResLastMonth, loading } = useUsers();
 
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: undefined,
@@ -28,11 +28,11 @@ export function Reservation() {
 
 
     useEffect(() => {
-        fetchReservations();
+        fetchResLastMonth();
     }, []);
 
 
-    const habitationReservations = reservations.filter(
+    const habitationReservations = resLastMonth.filter(
         res => res.habitation.id === habitation?.id && res.status !== 'Annulled'
     );
 

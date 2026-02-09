@@ -80,7 +80,7 @@ public class ReservationRepository {
         }
     }
 
-    public int reservationsLastMonth() throws SQLException {
+    public List<ReservationModel> reservationsLastMonth() throws SQLException {
         List<ReservationModel> list = new ArrayList<>();
         String sql = "SELECT r.*, h.name as h_name, u.name as u_name " +
                     "FROM reservations r " +
@@ -93,10 +93,10 @@ public class ReservationRepository {
              ResultSet rs = ps.executeQuery()) {
             
             while (rs.next()) {
-            list.add(mapResultSetToReservation(rs));
+                list.add(buildReservationFromResultSet(rs));
+            }
         }
-        }
-        return 0;
+        return list;
     }
 
     public int insertReservation(Connection conn, int habitationId, int userId, 
