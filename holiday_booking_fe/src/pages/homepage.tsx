@@ -1,4 +1,5 @@
 import { OverviewSection } from "@/components/overview-section";
+import { Statistics } from "@/components/statistics";
 import { useUsers } from "@/context/context";
 
 
@@ -25,7 +26,7 @@ function Homepage() {
             <div className="flex flex-col w-full p-4">
                 <div className="container mx-auto px-4 space-y-8">
                     <section>
-                        <h1 className="font-bold text-xl text-muted-foreground py-4">Overview</h1>
+                        <h2 className="font-bold text-xl text-muted-foreground py-4">Overview</h2>
                         <OverviewSection
                             totalHabitations={totalHabitations}
                             totalHosts={totalHosts}
@@ -34,6 +35,12 @@ function Homepage() {
                         />
                     </section>
 
+                    <section>
+                        <h2 className="font-bold text-xl text-muted-foreground py-4">Featured</h2>
+                        <Statistics/>
+                    </section>
+                    <section></section>
+                    <section></section>
                 </div>
             </div>
         </div>

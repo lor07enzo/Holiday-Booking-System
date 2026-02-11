@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,22 +23,23 @@ import com.lorenzo.pelone.model.UserModel;
 public class ReservationRepository {
     private static final Logger logger = LoggerFactory.getLogger(ReservationRepository.class);
 
+    String sqlReservation = "SELECT r.*, " +
+                            "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
+                            "h.floor, h.rooms, h.price, h.start_available, h.end_available, h.created_at as hab_created_at, " +
+                            "u.id as user_id, u.name as user_name, u.last_name, u.email, u.address as user_address, u.created_at as user_created_at, " +
+                            "host_u.id as host_user_id, host_u.name as host_name, host_u.last_name as host_last_name, " +
+                            "host_u.email as host_email, host_u.address as host_address, host_u.created_at as host_created_at, " +
+                            "ho.host_code, ho.super_host " +
+                            "FROM reservations r " +
+                            "JOIN habitations h ON r.habitation_id = h.id " +
+                            "JOIN users u ON r.user_id = u.id " +
+                            "JOIN hosts ho ON h.host_code = ho.host_code " +
+                            "JOIN users host_u ON ho.user_id = host_u.id ";
 
     public List<ReservationModel> allReservations() throws SQLException {
         List<ReservationModel> reservations = new ArrayList<>();
         
-        String sql = "SELECT r.*, " +
-                     "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
-                     "h.floor, h.rooms, h.price, h.start_available, h.end_available, h.created_at as hab_created_at, " +
-                     "u.id as user_id, u.name as user_name, u.last_name, u.email, u.address as user_address, u.created_at as user_created_at, " +
-                     "host_u.id as host_user_id, host_u.name as host_name, host_u.last_name as host_last_name, " +
-                     "host_u.email as host_email, host_u.address as host_address, host_u.created_at as host_created_at, " +
-                     "ho.host_code, ho.super_host " +
-                     "FROM reservations r " +
-                     "JOIN habitations h ON r.habitation_id = h.id " +
-                     "JOIN users u ON r.user_id = u.id " +
-                     "JOIN hosts ho ON h.host_code = ho.host_code " +
-                     "JOIN users host_u ON ho.user_id = host_u.id";
+        String sql = sqlReservation;
         
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -82,11 +85,7 @@ public class ReservationRepository {
 
     public List<ReservationModel> reservationsLastMonth() throws SQLException {
         List<ReservationModel> list = new ArrayList<>();
-        String sql = "SELECT r.*, h.name as h_name, u.name as u_name " +
-                    "FROM reservations r " +
-                    "JOIN habitations h ON r.habitation_id = h.id " +
-                    "JOIN users u ON r.user_id = u.id " +
-                    "WHERE r.created_at >= NOW() - INTERVAL '1 month'";
+        String sql = sqlReservation + "WHERE r.created_at >= NOW() - INTERVAL '1 month'";
         
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -97,6 +96,90 @@ public class ReservationRepository {
             }
         }
         return list;
+    }
+
+    // Metodo per avere la top 5 di utenti
+    public List<Map<String, Object>> getTop5UsersByDays() throws SQLException {
+        List<Map<String, Object>> users = new ArrayList<>();
+        String sql = """
+            SELECT u.id, u.name, u.last_name, SUM(r.end_date - r.start_date) as total_days
+            FROM reservations r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.created_at >= NOW() - INTERVAL '1 month'
+            GROUP BY u.id, u.name, u.last_name
+            ORDER BY total_days DESC
+            LIMIT 5
+            """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                users.add(Map.of(
+                    "id", rs.getInt("id"),
+                    "fullName", rs.getString("name") + " " + rs.getString("last_name"),
+                    "days", rs.getInt("total_days")
+                ));
+            }
+        }
+        return users;
+    }
+    
+    // Metodo per avere il migliore host
+    public List<Map<String, Object>> getTopHosts() throws SQLException {
+        List<Map<String, Object>> hosts = new ArrayList<>();
+        String sql = """
+            SELECT h.host_code, h.super_host, u.name, u.last_name, u.email, COUNT(r.id) as res_count
+            FROM reservations r
+            JOIN habitations hab ON r.habitation_id = hab.id
+            JOIN hosts h ON hab.host_code = h.host_code
+            JOIN users u ON h.user_id = u.id
+            WHERE r.created_at >= NOW() - INTERVAL '1 month'
+            GROUP BY h.host_code, h.super_host, u.name, u.last_name, u.email
+            ORDER BY res_count DESC
+            """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                hosts.add(Map.of(
+                    "hostCode", rs.getInt("host_code"), 
+                    "superHost", rs.getBoolean("super_host"),
+                    "name", rs.getString("name") + " " + rs.getString("last_name"), 
+                    "email", rs.getString("email"),
+                    "count", rs.getInt("res_count")
+                ));
+            }
+        }
+        return hosts;
+    }
+
+    public Map<String, Object> getMostPopularHabitation() throws SQLException {
+        String sql = """
+            SELECT h.id, h.name, h.address, h.price, COUNT(r.id) as total_reservations
+            FROM habitations h
+            JOIN reservations r ON h.id = r.habitation_id
+            WHERE r.created_at >= NOW() - INTERVAL '1 month'
+              AND r.status != 'Annulled'
+            GROUP BY h.id, h.name, h.address, h.price
+            ORDER BY total_reservations DESC
+            LIMIT 1
+            """;
+    
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            if (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", rs.getInt("id"));
+                map.put("name", rs.getString("name"));
+                map.put("address", rs.getString("address"));
+                map.put("price", rs.getDouble("price"));
+                map.put("reservationCount", rs.getInt("total_reservations"));
+                return map;
+            }
+        }
+        return null;
     }
 
     public int insertReservation(Connection conn, int habitationId, int userId, 

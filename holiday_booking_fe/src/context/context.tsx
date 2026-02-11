@@ -22,12 +22,19 @@ interface CreateReservationPayload {
     endDate: Date;
 }
 
+interface IStats {
+    topUsers: { id: number, fullName: string, days: number }[];
+    topHosts: { hostCode: number, superHost: boolean, name: string, email: string, count: number }[];
+    mostPopularHabitation: { id: number, name: string, address: string, price: number, reservationCount: number } | null;
+}
+
 interface UserContextType {
     users: IUser[];
     hosts: IHost[];
     habitations: IHabitation[];
     reservations: IReservation[];
     resLastMonth: IReservation[];
+    stats: IStats | null;
     feedbacks: IFeedback[];
     loading: boolean;
     createUser: (payload: CreateUserPayload) => Promise<void>;
@@ -37,6 +44,7 @@ interface UserContextType {
     fetchHabitations: () => Promise<void>;
     fetchReservations: () => Promise<void>;
     fetchResLastMonth: () => Promise<void>;
+    fetchStats: () => Promise<void>;
     fetchFeedbacks: () => Promise<void>;
 }
 
@@ -49,6 +57,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [reservations, setReservations] = useState<IReservation[]>([]);
     const [resLastMonth, setResLastMonth] = useState<IReservation[]>([]);
     const [feedbacks, setFeedbacks] = useState<IFeedback[]>([]);
+    const [stats, setStats] = useState<IStats | null>(null);
     const [loading, setLoading] = useState(false);
     
     const fetchUsers = async () => {
@@ -105,6 +114,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             toast.error("Failed to load reservations for last month");
         }
     }
+
+    const fetchStats = async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/v1/reservations/statistics`);
+            const data = await response.json();
+            setStats(data);
+        } catch {
+            toast.error("Failed to load statistics");
+        }
+    };
 
     const fetchFeedbacks = async () => {
         try {
@@ -176,13 +195,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         fetchHabitations();
         fetchReservations();
         fetchResLastMonth();
+        fetchStats();
         fetchFeedbacks();
     }, []);
 
     return (
         <UserContext.Provider 
-          value={{ users, hosts, habitations, reservations, resLastMonth, feedbacks, loading, 
-            createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth,  fetchFeedbacks }}>
+          value={{ users, hosts, habitations, reservations, resLastMonth, stats, feedbacks, loading, 
+            createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth, fetchStats, fetchFeedbacks }}>
             {children}
         </UserContext.Provider>
     );

@@ -3,7 +3,9 @@ package com.lorenzo.pelone.service;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,16 @@ public class ReservationService {
         }
     }
 
+    public Map<String, Object> getDashboardStats() throws SQLException {
+        Map<String, Object> stats = new HashMap<>();
+        
+        stats.put("topUsers", reservationRepository.getTop5UsersByDays());
+        stats.put("topHosts", reservationRepository.getTopHosts());
+        stats.put("mostPopularHabitation", reservationRepository.getMostPopularHabitation());
+        
+        return stats;
+    }
+
     public ReservationModel createReservation(int habitationId, int userId, LocalDate startDate, LocalDate endDate) {
         // Validazione date
         if (startDate.isAfter(endDate)) {
@@ -79,12 +91,12 @@ public class ReservationService {
             throw e;
             
         } catch (SQLException e) {
-            logger.error("Error creating reservation or updating host", e);
+            logger.error("Error creating reservation or updating host: ", e);
             if (conn != null) {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    logger.error("Error rolling back", ex);
+                    logger.error("Error rolling back: ", ex);
                 }
             }
             throw new RuntimeException("Error Server: " + e.getMessage(), e);

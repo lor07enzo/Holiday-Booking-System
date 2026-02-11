@@ -39,7 +39,6 @@ export function Reservation() {
     const isDateDisabled = (date: Date) => {
         if (!habitation) return true;
 
-
         const startAvailable = new Date(habitation.startAvailable);
         const endAvailable = new Date(habitation.endAvailable);
 
@@ -290,7 +289,6 @@ export function Reservation() {
                 >
                     {loading ? (
                         <span className="flex items-center gap-2">
-                            {/* Puoi inserire uno spinner qui */}
                             Loading...
                         </span>
                     ) : (

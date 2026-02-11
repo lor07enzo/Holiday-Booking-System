@@ -38,7 +38,16 @@ public class ReservationController {
                 ctx.json(resLastMonth);
             } catch (Exception e) {
                 logger.error("Error fetching reservations for last month", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservations for last month");
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservations for last month" + e);
+            }
+        });
+
+        app.get(BASE_PATH + "/reservations/statistics", ctx -> {
+            try {
+                ctx.json(reservationService.getDashboardStats());
+            } catch (Exception e) {
+                logger.error("Error fetching statistics: ", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching statistics: " + e);
             }
         });
 
@@ -47,7 +56,7 @@ public class ReservationController {
                 CreateReservationRequest requestDTO = ctx.bodyAsClass(CreateReservationRequest.class);
                 
                 if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST).result("Start and end dates are required");
+                    ctx.status(HttpStatus.BAD_REQUEST).result("Start and End dates are required");
                     return;
                 }
                 
