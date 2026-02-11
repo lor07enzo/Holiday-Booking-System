@@ -24,12 +24,17 @@ export const OverviewSection = (
     { totalHabitations, totalHosts, reservationsLastMonth: totalReservations, mediaNumberRooms }: OverviewProps) => {
 
     const [openDialog, setOpenDialog] = useState<DialogType>(null);
-    const { habitations, hosts, resLastMonth } = useUsers();
+    const { habitations, hosts, resLastMonth, fetchHostStats } = useUsers();
     const navigate = useNavigate();
 
     const handleHabitationClick = (habitation: IHabitation) => {
         navigate('/new-reservation', { state: { habitation } });
         setOpenDialog(null);
+    };
+
+    const handleHostCardClick = async () => {
+        await fetchHostStats(); // Carica i dati con i conteggi dal server
+        setOpenDialog("host");
     };
 
     const stats = [
@@ -89,10 +94,17 @@ export const OverviewSection = (
                     <Card
                         key={stat.title}
                         className={`border-border/50 transition-all ${stat.clickable
-                            ? "cursor-pointer hover:border-blue-900 hover:shadow-md"
-                            : ""
-                            }`}
-                        onClick={() => stat.clickable && setOpenDialog(stat.dialogType)}
+                            ? "cursor-pointer hover:border-blue-900 hover:shadow-md" : ""
+                        }`}
+                        onClick={() => {
+                            if (!stat.clickable) return;
+                            
+                            if (stat.dialogType === "host") {
+                                handleHostCardClick();
+                            } else {
+                                setOpenDialog(stat.dialogType);
+                            }
+                        }}
                     >
                         <CardHeader className="flex flex-row items-center  justify-between pb-2">
                             <CardTitle className="text-sm  font-medium text-muted-foreground">{stat.title}</CardTitle>
@@ -178,7 +190,7 @@ export const OverviewSection = (
                                             <TableHead className="whitespace-nowrap">Nome</TableHead>
                                             <TableHead className="whitespace-nowrap">Email</TableHead>
                                             <TableHead className="whitespace-nowrap">Status</TableHead>
-                                            {/* <TableHead className="whitespace-nowrap text-right">Prenotazioni/Mese</TableHead> */}
+                                            <TableHead className="whitespace-nowrap text-right">Reservations/Month</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -196,7 +208,7 @@ export const OverviewSection = (
                                                         <Badge variant="secondary">Standard</Badge>
                                                     )}
                                                 </TableCell>
-                                                {/* <TableCell className="text-right font-medium whitespace-nowrap">{host.prenotazioniUltimoMese}</TableCell> */}
+                                                <TableCell className="text-right font-medium whitespace-nowrap">{host.resHostLastMonth ?? 0}</TableCell> 
                                             </TableRow>
                                         ))}
                                     </TableBody>

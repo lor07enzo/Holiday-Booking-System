@@ -54,6 +54,16 @@ public class UserController {
             }
         });
 
+        app.get(BASE_PATH + "/hosts/statistics", ctx -> {
+            try {
+                List<java.util.Map<String, Object>> stats = userService.getResFromHost();
+                ctx.json(stats);
+            } catch (Exception e) {
+                logger.error("Error fetching host statistics", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
+            }
+        });
+
         app.get(BASE_PATH + "/hosts/{hostCode}", ctx -> {
             try {
                 int hostCode = Integer.parseInt(ctx.pathParam("hostCode"));
@@ -70,7 +80,6 @@ public class UserController {
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
-
 
         app.post(BASE_PATH + "/users", ctx -> {
            try {

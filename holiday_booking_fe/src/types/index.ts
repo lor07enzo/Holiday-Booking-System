@@ -6,12 +6,14 @@ export interface IUser {
     lastName: string;
     email: string;
     address: string;
+    createdAt: Date;
 }
 
 export interface IHost {
     user: IUser;
     hostCode: number; 
     superHost: boolean;
+    resHostLastMonth?: number;
 }
 
 export interface IHabitation {

@@ -102,11 +102,11 @@ public class ReservationRepository {
     public List<Map<String, Object>> getTop5UsersByDays() throws SQLException {
         List<Map<String, Object>> users = new ArrayList<>();
         String sql = """
-            SELECT u.id, u.name, u.last_name, SUM(r.end_date - r.start_date) as total_days
+            SELECT u.id, u.name, u.last_name, u.email, SUM(r.end_date - r.start_date) as total_days
             FROM reservations r
             JOIN users u ON r.user_id = u.id
             WHERE r.created_at >= NOW() - INTERVAL '1 month'
-            GROUP BY u.id, u.name, u.last_name
+            GROUP BY u.id, u.name, u.last_name, u.email
             ORDER BY total_days DESC
             LIMIT 5
             """;
@@ -117,7 +117,8 @@ public class ReservationRepository {
                 users.add(Map.of(
                     "id", rs.getInt("id"),
                     "fullName", rs.getString("name") + " " + rs.getString("last_name"),
-                    "days", rs.getInt("total_days")
+                    "days", rs.getInt("total_days"),
+                    "email", rs.getString("email")
                 ));
             }
         }

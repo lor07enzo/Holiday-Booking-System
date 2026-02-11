@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +143,47 @@ public class UserRepository {
             throw new RuntimeException("Error fetching host by code: " + hostCode, e);
         }
         return null;
+    }
+
+    // Metodo per avere il numero di prenotazioni di un host
+    public List<Map<String, Object>> getHostsWithMonthlyReservations() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        String sql = """
+            SELECT h.host_code, h.super_host, u.name, u.last_name, u.email,
+                   (SELECT COUNT(r.id) 
+                    FROM reservations r 
+                    JOIN habitations hab ON r.habitation_id = hab.id 
+                    WHERE hab.host_code = h.host_code 
+                    AND r.created_at >= NOW() - INTERVAL '1 month') as monthly_res
+            FROM hosts h 
+            JOIN users u ON h.user_id = u.id
+            """;
+    
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+    
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("hostCode", rs.getInt("host_code"));
+                row.put("superHost", rs.getBoolean("super_host"));
+                row.put("resHostLastMonth", rs.getInt("monthly_res")); 
+
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("name", rs.getString("name"));
+                userMap.put("lastName", rs.getString("last_name"));
+                userMap.put("email", rs.getString("email"));
+
+                if (rs.getTimestamp("created_at") != null) {
+                    userMap.put("createdAt", rs.getTimestamp("created_at").toInstant().toString());
+                }
+                row.put("user", userMap);
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            logger.error("Error fetching host stats", e);
+        }
+        return result;
     }
 
     public UserModel insertUser(Connection conn, UserModel user) throws SQLException {

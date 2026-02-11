@@ -10,6 +10,7 @@ interface CreateUserPayload {
         lastName: string;
         email: string;
         address: string;
+        createdAt: Date;
     };
     host: boolean;
 }
@@ -23,7 +24,7 @@ interface CreateReservationPayload {
 }
 
 interface IStats {
-    topUsers: { id: number, fullName: string, days: number }[];
+    topUsers: { id: number, fullName: string, email: string, days: number }[];
     topHosts: { hostCode: number, superHost: boolean, name: string, email: string, count: number }[];
     mostPopularHabitation: { id: number, name: string, address: string, price: number, reservationCount: number } | null;
 }
@@ -41,6 +42,7 @@ interface UserContextType {
     createReservation: (payload: CreateReservationPayload) => Promise<void>;
     fetchUsers: () => Promise<void>;
     fetchHosts: () => Promise<void>;
+    fetchHostStats: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
     fetchReservations: () => Promise<void>;
     fetchResLastMonth: () => Promise<void>;
@@ -79,6 +81,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setHosts(data);
         } catch {
             toast.error("Failed to load hosts");
+        }
+    };
+
+    const fetchHostStats = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/v1/hosts/statistics`);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setHosts(data);
+        } catch {
+            toast.error("Failed to load hosts stats");
         }
     };
 
@@ -202,7 +215,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return (
         <UserContext.Provider 
           value={{ users, hosts, habitations, reservations, resLastMonth, stats, feedbacks, loading, 
-            createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth, fetchStats, fetchFeedbacks }}>
+            createUser, createReservation, fetchHosts, fetchHostStats, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth, fetchStats, fetchFeedbacks }}>
             {children}
         </UserContext.Provider>
     );
