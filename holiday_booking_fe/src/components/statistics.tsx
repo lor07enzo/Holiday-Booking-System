@@ -6,25 +6,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { useEffect } from "react";
 
 export const Statistics = () => {
-    const { hosts, stats, loading, fetchHostStats } = useUsers();
+    const { hosts, stats, loading, fetchStats } = useUsers();
 
     useEffect(() => {
-        fetchHostStats();
+        fetchStats();
     }, [])
 
     if (loading || !stats) return <div>Loading statistics...</div>;
 
     return (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
 
             {/* Abitazione con più prenotazioni */}
             <Card className="border-border/50 bg-linear-to-br from-card to-muted/20">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-emerald-500" />
-                        Abitazione Piu Gettonata
+                        Most Popular Habitation
                     </CardTitle>
-                    <CardDescription>Ultimo mese</CardDescription>
+                    <CardDescription>Last month</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {stats.mostPopularHabitation ? (
@@ -42,12 +42,12 @@ export const Statistics = () => {
                                 </span>
                                 <Badge variant="secondary" className="flex items-center gap-1">
                                     <CalendarDays className="h-3 w-3" />
-                                    {stats.mostPopularHabitation.reservationCount} prenotazioni
+                                    {stats.mostPopularHabitation.reservationCount} reservations
                                 </Badge>
                             </div>
                         </div>
                     ) : (
-                        <p className="text-muted-foreground">Dati non disponibili</p>
+                        <p className="text-muted-foreground">Data not Available</p>
                     )}
                 </CardContent>
             </Card>
@@ -57,9 +57,9 @@ export const Statistics = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-amber-500" />
-                        Host Piu Attivo
+                        Most Active Host
                     </CardTitle>
-                    <CardDescription>Ultimo mese</CardDescription>
+                    <CardDescription>Last month</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {stats.topHosts ? (
@@ -79,13 +79,13 @@ export const Statistics = () => {
                                     }
                                     <Badge variant="secondary" className="flex items-center gap-1">
                                         <CalendarDays className="h-3 w-3" />
-                                        {host.count} prenotazioni
+                                        {host.count} reservations
                                     </Badge>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <p className="text-muted-foreground">Dati non disponibili</p>
+                        <p className="text-muted-foreground">Data not Available</p>
                     )}
                 </CardContent>
             </Card>
@@ -95,10 +95,10 @@ export const Statistics = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Users className="h-5 w-5" />
-                        Top 5 Utenti per Giorni Prenotati
+                        Top 5 Users by Days Booked
                     </CardTitle>
                     <CardDescription>
-                        Utenti con piu giorni di prenotazione nell'ultimo mese
+                        Users with the most days booked in the last month
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -107,9 +107,9 @@ export const Statistics = () => {
                             <TableHeader>
                                 <TableRow className="bg-muted/30">
                                     <TableHead className="w-12">#</TableHead>
-                                    <TableHead>Nome</TableHead>
+                                    <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
-                                    <TableHead className="text-right">Giorni Prenotati</TableHead>
+                                    <TableHead className="text-right">Booked Days</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -134,7 +134,7 @@ export const Statistics = () => {
                                         <TableCell className="text-right">
                                             <span className="flex items-center justify-end gap-1 font-semibold">
                                                 <Calendar className="h-3 w-3 text-muted-foreground" />
-                                                {user.days} giorni
+                                                {user.days} days
                                             </span>
                                         </TableCell>
                                     </TableRow>
@@ -150,10 +150,10 @@ export const Statistics = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Star className="h-5 w-5 text-amber-500" />
-                        Tutti i Super Host
+                        All Super Hosts
                     </CardTitle>
                     <CardDescription>
-                        Host con prestazioni eccellenti sulla piattaforma
+                        Host who have had at least 100 bookings
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -161,10 +161,10 @@ export const Statistics = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-muted/30">
-                                    <TableHead>Nome</TableHead>
+                                    <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
-                                    <TableHead>Registrato</TableHead>
-                                    <TableHead className="text-right">Prenotazioni Mese</TableHead>
+                                    <TableHead>Registered</TableHead>
+                                    <TableHead className="text-right">Bookings/Month</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

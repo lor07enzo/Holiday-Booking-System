@@ -1,0 +1,13 @@
+{
+    "hostCode": 222222,
+    "habitation": {
+        "name": "Beautiful Apartment in Rome",
+        "description": "A cozy apartment in the city center",
+        "address": "Via del Corso 123, Rome, Italy",
+        "floor": 3,
+        "rooms": 5,
+        "price": 150.00,
+        "startAvailable": "2026-01-01",
+        "endAvailable": "2027-01-01"
+    }
+}

@@ -24,7 +24,7 @@ export const OverviewSection = (
     { totalHabitations, totalHosts, reservationsLastMonth: totalReservations, mediaNumberRooms }: OverviewProps) => {
 
     const [openDialog, setOpenDialog] = useState<DialogType>(null);
-    const { habitations, hosts, resLastMonth, fetchHostStats } = useUsers();
+    const { habitations, hosts, resLastMonth, fetchStats } = useUsers();
     const navigate = useNavigate();
 
     const handleHabitationClick = (habitation: IHabitation) => {
@@ -33,7 +33,7 @@ export const OverviewSection = (
     };
 
     const handleHostCardClick = async () => {
-        await fetchHostStats(); // Carica i dati con i conteggi dal server
+        await fetchStats(); 
         setOpenDialog("host");
     };
 
@@ -174,7 +174,7 @@ export const OverviewSection = (
             {/* Dialog degli host */}
             <Dialog open={openDialog === "host"} onOpenChange={(open) => !open && setOpenDialog(null)}>
                 <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
-                    <DialogHeader className="flex-shrink-0">
+                    <DialogHeader className="shrink-0">
                         <DialogTitle>All Hosts</DialogTitle>
                         <DialogDescription>
                             List of all hosts in this system
@@ -187,7 +187,7 @@ export const OverviewSection = (
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead className="whitespace-nowrap">ID</TableHead>
-                                            <TableHead className="whitespace-nowrap">Nome</TableHead>
+                                            <TableHead className="whitespace-nowrap">Name</TableHead>
                                             <TableHead className="whitespace-nowrap">Email</TableHead>
                                             <TableHead className="whitespace-nowrap">Status</TableHead>
                                             <TableHead className="whitespace-nowrap text-right">Reservations/Month</TableHead>
@@ -256,8 +256,8 @@ export const OverviewSection = (
                                                         {(res.user.name) + " " + (res.user.lastName) || "-"}
                                                     </TableCell>
                                                     <TableCell className="whitespace-nowrap">{res.habitation?.name || "-"}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{new Date(res.startDate).toLocaleDateString("it-IT")}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{new Date(res.endDate).toLocaleDateString("it-IT")}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{new Date(res.startDate).toISOString().split('T')[0]}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{new Date(res.endDate).toISOString().split('T')[0]}</TableCell>
                                                     <TableCell className="whitespace-nowrap">
                                                         <Badge className={statusColor(res.status)}>
                                                             {res.status.replace("_", " ")}

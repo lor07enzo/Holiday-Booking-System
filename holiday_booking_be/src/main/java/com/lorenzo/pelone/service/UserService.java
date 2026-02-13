@@ -3,7 +3,6 @@ package com.lorenzo.pelone.service;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +46,6 @@ public class UserService {
         } else {
             return host;
         }
-    }
-
-    public List<Map<String,Object>> getResFromHost() {
-        return userRepository.getHostsWithMonthlyReservations();
     }
     
     // Logica di business per gli utenti e host in POST

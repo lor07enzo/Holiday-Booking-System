@@ -83,7 +83,7 @@ export function CreateUser() {
                 <CardContent>
                     <form onSubmit={handleSubmit}>
                         <FieldGroup >
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Field className="gap-1">
                                     <FieldLabel htmlFor="name">Name</FieldLabel>
                                     <Input id="name" name="name" placeholder="John" aria-invalid={!!errors.name} />

@@ -24,7 +24,6 @@ public class FeedbackRepository {
 
     public List<FeedbackModel> allFeedback() throws SQLException {
         List<FeedbackModel> feedbacks = new ArrayList<>();
-        // Query completa: recupera dati feedback, autore (user) e abitazione di riferimento (via reservation)
         String sql = "SELECT f.*, " +
                      "u.id as u_id, u.name as u_name, u.last_name as u_last, " +
                      "r.id as r_id, r.habitation_id " + 
@@ -43,7 +42,6 @@ public class FeedbackRepository {
         return feedbacks;
     }
 
-    // Metodo semplificato per Postman: ritorna solo l'ID creato
     public String insertFeedback(int reservationId, int userId, String title, String text, int score) throws SQLException {
         String sql = "INSERT INTO feedback (id, reservation_id, user_id, title, text_description, score) VALUES (?, ?, ?, ?, ?, ?)";
         String newUuid = UUID.randomUUID().toString();
@@ -64,30 +62,41 @@ public class FeedbackRepository {
         }
     }
 
+    // Controllo se feedback già esiste su una prenotazione
+    public boolean existsByReservationId(int reservationId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM feedback WHERE reservation_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reservationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     private FeedbackModel mapResultSetToModel(ResultSet rs) throws SQLException {
-        // 1. Popolamento Utente (per mostrare chi ha scritto la recensione)
         UserModel user = new UserModel();
         user.setId(rs.getInt("u_id"));
         user.setName(rs.getString("u_name"));
         user.setLastName(rs.getString("u_last"));
 
-        // 2. Fondamentale: Mappiamo l'ID Abitazione per permettere il filtro .filter() nel frontend
         ReservationModel res = new ReservationModel();
         res.setId(rs.getInt("r_id"));
         HabitationModel hab = new HabitationModel();
         hab.setId(rs.getInt("habitation_id")); 
         res.setHabitation(hab);
 
-        // 3. Popolamento Feedback
         FeedbackModel feedback = new FeedbackModel();
         feedback.setId(rs.getString("id"));
         feedback.setUser(user);
         feedback.setReservation(res);
         feedback.setTitle(rs.getString("title"));
-        feedback.setText(rs.getString("text_description")); // Mappato correttamente da DB
+        feedback.setText(rs.getString("text_description")); 
         feedback.setScore(rs.getInt("score"));
         
-        // Recupero data di inserimento dal DB
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {
             feedback.setCreatedAt(ts.toLocalDateTime());

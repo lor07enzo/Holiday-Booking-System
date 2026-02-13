@@ -137,6 +137,7 @@ public class ReservationRepository {
             WHERE r.created_at >= NOW() - INTERVAL '1 month'
             GROUP BY h.host_code, h.super_host, u.name, u.last_name, u.email
             ORDER BY res_count DESC
+            LIMIT 1
             """;
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

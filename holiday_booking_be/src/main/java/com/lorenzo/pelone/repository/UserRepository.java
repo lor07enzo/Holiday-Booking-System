@@ -149,7 +149,7 @@ public class UserRepository {
     public List<Map<String, Object>> getHostsWithMonthlyReservations() {
         List<Map<String, Object>> result = new ArrayList<>();
         String sql = """
-            SELECT h.host_code, h.super_host, u.name, u.last_name, u.email,
+            SELECT h.host_code, h.super_host, u.name, u.last_name, u.email, u.created_at,
                    (SELECT COUNT(r.id) 
                     FROM reservations r 
                     JOIN habitations hab ON r.habitation_id = hab.id 

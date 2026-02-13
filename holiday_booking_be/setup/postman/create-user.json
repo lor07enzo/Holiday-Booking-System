@@ -1,0 +1,9 @@
+{
+    "user": {
+        "name": "Name",
+        "lastName": "lastName",
+        "email": "email@example.com",
+        "address": "Via Roma 54, Firenze, Italy"
+    },
+    "host": true 
+}

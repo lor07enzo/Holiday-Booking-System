@@ -51,7 +51,10 @@ public class ReservationService {
     public Map<String, Object> getDashboardStats() throws SQLException {
         Map<String, Object> stats = new HashMap<>();
         
+        List<Map<String, Object>> hostsWithCounts = userRepository.getHostsWithMonthlyReservations();
+
         stats.put("topUsers", reservationRepository.getTop5UsersByDays());
+        stats.put("allHosts", hostsWithCounts);
         stats.put("topHosts", reservationRepository.getTopHosts());
         stats.put("mostPopularHabitation", reservationRepository.getMostPopularHabitation());
         

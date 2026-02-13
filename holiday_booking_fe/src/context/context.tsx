@@ -42,7 +42,6 @@ interface UserContextType {
     createReservation: (payload: CreateReservationPayload) => Promise<void>;
     fetchUsers: () => Promise<void>;
     fetchHosts: () => Promise<void>;
-    fetchHostStats: () => Promise<void>;
     fetchHabitations: () => Promise<void>;
     fetchReservations: () => Promise<void>;
     fetchResLastMonth: () => Promise<void>;
@@ -84,17 +83,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const fetchHostStats = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/v1/hosts/statistics`);
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            setHosts(data);
-        } catch {
-            toast.error("Failed to load hosts stats");
-        }
-    };
-
     const fetchHabitations = async () => {
         try {
             const res = await fetch(`${API_URL}/api/v1/habitations`);
@@ -132,6 +120,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         try {
             const response = await fetch(`${API_URL}/api/v1/reservations/statistics`);
             const data = await response.json();
+
+            if (data.allHosts) {
+                setHosts(data.allHosts); 
+            }
             setStats(data);
         } catch {
             toast.error("Failed to load statistics");
@@ -144,8 +136,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             if (!res.ok) throw new Error();
             const data = await res.json();
             setFeedbacks(data);
-        } catch {
+        } catch (err) {
             toast.error("Failed to load reviews");
+            console.log(err);
         }
     };
 
@@ -215,7 +208,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return (
         <UserContext.Provider 
           value={{ users, hosts, habitations, reservations, resLastMonth, stats, feedbacks, loading, 
-            createUser, createReservation, fetchHosts, fetchHostStats, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth, fetchStats, fetchFeedbacks }}>
+            createUser, createReservation, fetchHosts, fetchUsers, fetchHabitations, fetchReservations, fetchResLastMonth, fetchStats, fetchFeedbacks }}>
             {children}
         </UserContext.Provider>
     );

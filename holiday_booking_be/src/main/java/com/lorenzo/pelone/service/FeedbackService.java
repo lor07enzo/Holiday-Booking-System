@@ -27,7 +27,7 @@ public class FeedbackService {
             return feedbackRepository.allFeedback();
         } catch (SQLException e) {
             logger.error("Error fetching feedback", e);
-            throw new RuntimeException("Error fetching feedback.");
+            throw new RuntimeException("Error fetching feedback: " + e.getMessage());
         }
     }
 
@@ -35,6 +35,15 @@ public class FeedbackService {
         try {
             ReservationModel res = reservationRepository.getReservationById(reservationId);
     
+            if (res == null) {
+                throw new IllegalArgumentException("Reservation not found.");
+            }
+
+            boolean alreadyExists = feedbackRepository.existsByReservationId(reservationId);
+            if (alreadyExists) {
+                throw new IllegalArgumentException("A feedback for this reservation has already been submitted.");
+            }
+
             if (!"Completed".equals(res.getStatus())) {
                 throw new IllegalArgumentException("You can only leave feedback for completed bookings.");
             }
@@ -54,7 +63,7 @@ public class FeedbackService {
 
         } catch (SQLException e) {
             logger.error("Error SQL during POST feedback", e);
-            throw new RuntimeException("Errore interno durante il salvataggio del feedback.");
+            throw new RuntimeException("Internal error during feedback saving.");
         }
     }
 }

@@ -128,7 +128,7 @@ export function Habitation() {
                 <CardContent>
                     <form onSubmit={handleSubmit}>
                         <FieldGroup >
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Field className="gap-1">
                                     <FieldLabel htmlFor="hostCode">Host Code</FieldLabel>
                                     <Select name="hostCode" value={selectedHostCode} onValueChange={setSelectedHostCode}>
@@ -139,11 +139,11 @@ export function Habitation() {
                                             <SelectGroup>
                                                 <SelectLabel>Hosts</SelectLabel>
                                                 {hosts.length === 0 ? (
-                                                    <SelectItem value="null">No hosts Found</SelectItem>
+                                                    <p>Host not Found</p>
                                                 ) : (
                                                     hosts.map(host => (
                                                         <SelectItem key={host.hostCode} value={String(host.hostCode)}>
-                                                            Host - {host.user.email}
+                                                            Host - {host.user.email} ({host.hostCode})
                                                         </SelectItem>
                                                     ))
                                                 )}
