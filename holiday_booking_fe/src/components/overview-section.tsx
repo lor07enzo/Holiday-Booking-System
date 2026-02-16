@@ -125,153 +125,162 @@ export const OverviewSection = (
 
             {/* Dialog delle abitazioni */}
             <Dialog open={openDialog === "habitation"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-                <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
-                    <DialogHeader className="shrink-0">
+                <DialogContent className="max-w-5xl h-[60vh] flex flex-col p-0">
+                    <DialogHeader className="p-6 pb-2 shrink-0">
                         <DialogTitle>All Habitations</DialogTitle>
                         <DialogDescription>
                             List of all habitations in this system
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="max-h-[70vh] w-full">
-                            <div className="min-w-max">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Name Habitation</TableHead>
-                                            <TableHead>Host</TableHead>
-                                            <TableHead>Position</TableHead>
-                                            <TableHead className="text-center">Rooms</TableHead>
-                                            <TableHead className="text-right">Price/Night</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {habitations.map((hab: IHabitation) => {
-                                            const host = hab.host.user;
-                                            return (
-                                                <TableRow
-                                                    key={hab.id}
-                                                    className="cursor-pointer hover:bg-blue-100"
-                                                    onClick={() => handleHabitationClick(hab)}
-                                                >
-                                                    <TableCell className="font-medium">{hab.name}</TableCell>
-                                                    <TableCell>{host ? `${host.name} ${host.lastName}` : "-"}</TableCell>
-                                                    <TableCell>{hab.address}</TableCell>
-                                                    <TableCell className="text-center">{hab.rooms}</TableCell>
-                                                    <TableCell className="text-right font-medium">{hab.price} EUR</TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
+                    <div className="flex-1 min-h-0 overflow-hidden px-6 pb-6">
+                        <div className="border rounded-md h-full overflow-hidden">
+                            <ScrollArea className="h-full w-full">
+                                <div className="min-w-max">
+                                    <Table>
+                                        <TableHeader className="sticky top-0 bg-background z-10">
+                                            <TableRow>
+                                                <TableHead>Name Habitation</TableHead>
+                                                <TableHead>Host</TableHead>
+                                                <TableHead>Position</TableHead>
+                                                <TableHead className="text-center">Rooms</TableHead>
+                                                <TableHead className="text-right">Price/Night</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {habitations.map((hab: IHabitation) => {
+                                                const host = hab.host.user;
+                                                return (
+                                                    <TableRow
+                                                        key={hab.id}
+                                                        className="cursor-pointer hover:bg-blue-100"
+                                                        onClick={() => handleHabitationClick(hab)}
+                                                    >
+                                                        <TableCell className="font-medium">{hab.name}</TableCell>
+                                                        <TableCell>{host ? `${host.name} ${host.lastName}` : "-"}</TableCell>
+                                                        <TableCell>{hab.address}</TableCell>
+                                                        <TableCell className="text-center">{hab.rooms}</TableCell>
+                                                        <TableCell className="text-right font-medium">{hab.price} EUR</TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <ScrollBar orientation="horizontal" />
+                                <ScrollBar orientation="vertical" />
+                            </ScrollArea>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
 
             {/* Dialog degli host */}
             <Dialog open={openDialog === "host"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-                <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
-                    <DialogHeader className="shrink-0">
+                <DialogContent className="max-w-5xl h-[60vh] flex flex-col p-0">
+                    <DialogHeader className="p-6 pb-2 shrink-0">
                         <DialogTitle>All Hosts</DialogTitle>
                         <DialogDescription>
                             List of all hosts in this system
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="h-full max-h-[60vh] w-full">
-                            <div className="min-w-max">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="whitespace-nowrap">ID</TableHead>
-                                            <TableHead className="whitespace-nowrap">Name</TableHead>
-                                            <TableHead className="whitespace-nowrap">Email</TableHead>
-                                            <TableHead className="whitespace-nowrap">Status</TableHead>
-                                            <TableHead className="whitespace-nowrap text-right">Reservations/Month</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {hosts.map((host: IHost) => (
-                                            <TableRow key={host.hostCode}>
-                                                <TableCell className="font-mono text-sm whitespace-nowrap">{host.hostCode}</TableCell>
-                                                <TableCell className="font-medium whitespace-nowrap">{host.user.name} {host.user.lastName}</TableCell>
-                                                <TableCell className="text-muted-foreground whitespace-nowrap">{host.user.email}</TableCell>
-                                                <TableCell className="whitespace-nowrap">
-                                                    {host.superHost ? (
-                                                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                                                            Super Host
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge variant="secondary">Standard</Badge>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-right font-medium whitespace-nowrap">{host.resHostLastMonth ?? 0}</TableCell> 
+                    <div className="flex-1 min-h-0 overflow-hidden px-6 pb-6">
+                        <div className="border rounded-md h-full overflow-hidden">
+                            <ScrollArea className="h-full w-full">
+                                <div className="min-w-max">
+                                    <Table>
+                                        <TableHeader className="sticky top-0 bg-background z-10">
+                                            <TableRow>
+                                                <TableHead className="whitespace-nowrap">ID</TableHead>
+                                                <TableHead className="whitespace-nowrap">Name</TableHead>
+                                                <TableHead className="whitespace-nowrap">Email</TableHead>
+                                                <TableHead className="whitespace-nowrap">Status</TableHead>
+                                                <TableHead className="whitespace-nowrap text-right">Reservations/Month</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {hosts.map((host: IHost) => (
+                                                <TableRow key={host.hostCode}>
+                                                    <TableCell className="font-mono text-sm whitespace-nowrap">{host.hostCode}</TableCell>
+                                                    <TableCell className="font-medium whitespace-nowrap">{host.user.name} {host.user.lastName}</TableCell>
+                                                    <TableCell className="text-muted-foreground whitespace-nowrap">{host.user.email}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">
+                                                        {host.superHost ? (
+                                                            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                                                Super Host
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge variant="secondary">Standard</Badge>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-medium whitespace-nowrap">{host.resHostLastMonth ?? 0}</TableCell> 
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <ScrollBar orientation="horizontal" />
+                                <ScrollBar orientation="vertical" />
+                            </ScrollArea>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
 
             {/* Dialog Prenotazioni */}
             <Dialog open={openDialog === "reservation"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-                <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
-                    <DialogHeader className="shrink-0">
+                <DialogContent className="max-w-5xl h-[60vh] flex flex-col p-0">
+                    <DialogHeader className="p-6 pb-2 shrink-0">
                         <DialogTitle>All Reservation</DialogTitle>
                         <DialogDescription>
                             List of all reservations in this system
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="h-full max-h-[60vh] w-full">
-                            <div className="min-w-max">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="whitespace-nowrap">User</TableHead>
-                                            <TableHead className="whitespace-nowrap">Habitation</TableHead>
-                                            <TableHead className="whitespace-nowrap">Check-in</TableHead>
-                                            <TableHead className="whitespace-nowrap">Check-out</TableHead>
-                                            <TableHead className="whitespace-nowrap">Status</TableHead>
-                                            <TableHead className="whitespace-nowrap text-right">Total</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {resLastMonth.map((res: IReservation) => {
-                                            const nights = differenceInDays(
-                                                new Date(res.endDate),
-                                                new Date(res.startDate)
-                                            );
-                                            const totalCost = nights * res.habitation.price;
-                                            return (
-                                                <TableRow key={res.id}>
-                                                    <TableCell className="font-medium whitespace-nowrap">
-                                                        {(res.user.name) + " " + (res.user.lastName) || "-"}
-                                                    </TableCell>
-                                                    <TableCell className="whitespace-nowrap">{res.habitation?.name || "-"}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{new Date(res.startDate).toISOString().split('T')[0]}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{new Date(res.endDate).toISOString().split('T')[0]}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">
-                                                        <Badge className={statusColor(res.status)}>
-                                                            {res.status.replace("_", " ")}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-right font-medium whitespace-nowrap">€{totalCost.toFixed(2)}</TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
+                    <div className="flex-1 min-h-0 overflow-hidden px-6 pb-6">
+                        <div className="border rounded-md h-full overflow-hidden">
+                            <ScrollArea className="h-full w-full">
+                                <div className="min-w-max">
+                                    <Table>
+                                        <TableHeader className="sticky top-0 bg-background z-10">
+                                            <TableRow>
+                                                <TableHead className="whitespace-nowrap">User</TableHead>
+                                                <TableHead className="whitespace-nowrap">Habitation</TableHead>
+                                                <TableHead className="whitespace-nowrap">Check-in</TableHead>
+                                                <TableHead className="whitespace-nowrap">Check-out</TableHead>
+                                                <TableHead className="whitespace-nowrap">Status</TableHead>
+                                                <TableHead className="whitespace-nowrap text-right">Total</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {resLastMonth.map((res: IReservation) => {
+                                                const nights = differenceInDays(
+                                                    new Date(res.endDate),
+                                                    new Date(res.startDate)
+                                                );
+                                                const totalCost = nights * res.habitation.price;
+                                                return (
+                                                    <TableRow key={res.id}>
+                                                        <TableCell className="font-medium whitespace-nowrap">
+                                                            {(res.user.name) + " " + (res.user.lastName) || "-"}
+                                                        </TableCell>
+                                                        <TableCell className="whitespace-nowrap">{res.habitation?.name || "-"}</TableCell>
+                                                        <TableCell className="whitespace-nowrap">{new Date(res.startDate).toISOString().split('T')[0]}</TableCell>
+                                                        <TableCell className="whitespace-nowrap">{new Date(res.endDate).toISOString().split('T')[0]}</TableCell>
+                                                        <TableCell className="whitespace-nowrap">
+                                                            <Badge className={statusColor(res.status)}>
+                                                                {res.status.replace("_", " ")}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-right font-medium whitespace-nowrap">€{totalCost.toFixed(2)}</TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <ScrollBar orientation="horizontal" />
+                                <ScrollBar orientation="vertical" />
+                            </ScrollArea>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

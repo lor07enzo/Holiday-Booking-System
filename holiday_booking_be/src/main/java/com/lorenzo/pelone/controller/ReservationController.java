@@ -51,6 +51,17 @@ public class ReservationController {
             }
         });
 
+        app.get(BASE_PATH + "/users/{userId}/reservations", ctx -> {
+            try {
+                int userId = ctx.pathParamAsClass("userId", Integer.class).get();
+                ReservationModel res = reservationService.lastReservationByUser(userId);
+                ctx.json(res);
+            } catch (Exception e) {
+                logger.error("Error fetching reservation for this user: ", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservation for this user: " + e);
+            }
+        });
+
         app.post(BASE_PATH + "/reservations", ctx -> {
             try {
                 CreateReservationRequest requestDTO = ctx.bodyAsClass(CreateReservationRequest.class);

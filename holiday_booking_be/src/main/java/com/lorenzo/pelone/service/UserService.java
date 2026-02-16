@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
-import com.lorenzo.pelone.repository.UserRepository;
+import com.lorenzo.pelone.repository.UserDAO;
 
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private final UserRepository userRepository;
+    private final UserDAO userRepository;
 
     public UserService() {
-        this.userRepository = new UserRepository();
+        this.userRepository = new UserDAO();
     }
 
     

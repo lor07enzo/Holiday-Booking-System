@@ -6,26 +6,27 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.ReservationModel;
-import com.lorenzo.pelone.repository.HabitationRepository;
-import com.lorenzo.pelone.repository.ReservationRepository;
-import com.lorenzo.pelone.repository.UserRepository;
+import com.lorenzo.pelone.repository.HabitationDAO;
+import com.lorenzo.pelone.repository.ReservationDAO;
+import com.lorenzo.pelone.repository.UserDAO;
 
 public class ReservationService {
     private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
-    private final ReservationRepository reservationRepository;
-    private final HabitationRepository habitationRepository;
-    private final UserRepository userRepository;
+    private final ReservationDAO reservationRepository;
+    private final HabitationDAO habitationRepository;
+    private final UserDAO userRepository;
 
     public ReservationService() {
-        this.reservationRepository = new ReservationRepository();
-        this.habitationRepository = new HabitationRepository();
-        this.userRepository = new UserRepository();
+        this.reservationRepository = new ReservationDAO();
+        this.habitationRepository = new HabitationDAO();
+        this.userRepository = new UserDAO();
     }
 
 
@@ -61,8 +62,24 @@ public class ReservationService {
         return stats;
     }
 
+    public ReservationModel lastReservationByUser(int userId) throws SQLException {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("User ID not valid: " + userId);
+        }
+
+        if (userRepository.userById(userId) == null) {
+            throw new NoSuchElementException("This user not exist: " + userId);
+        }
+        ReservationModel lastRes = reservationRepository.getLastReservationByUser(userId);
+
+        if (lastRes == null) {
+            System.out.println("Not found reservation for this user: " + userId);
+        }
+
+        return lastRes;
+    }
+
     public ReservationModel createReservation(int habitationId, int userId, LocalDate startDate, LocalDate endDate) {
-        // Validazione date
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must be before end date");
         }

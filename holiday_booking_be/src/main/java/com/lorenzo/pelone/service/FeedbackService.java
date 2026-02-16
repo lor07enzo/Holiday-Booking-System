@@ -8,17 +8,17 @@ import org.slf4j.LoggerFactory;
 
 import com.lorenzo.pelone.model.FeedbackModel;
 import com.lorenzo.pelone.model.ReservationModel;
-import com.lorenzo.pelone.repository.FeedbackRepository;
-import com.lorenzo.pelone.repository.ReservationRepository;
+import com.lorenzo.pelone.repository.FeedbackDAO;
+import com.lorenzo.pelone.repository.ReservationDAO;
 
 public class FeedbackService {
     private static final Logger logger = LoggerFactory.getLogger(FeedbackService.class);
-    private final FeedbackRepository feedbackRepository;
-    private final ReservationRepository reservationRepository;
+    private final FeedbackDAO feedbackRepository;
+    private final ReservationDAO reservationRepository;
 
     public FeedbackService() {
-        this.feedbackRepository = new FeedbackRepository();
-        this.reservationRepository = new ReservationRepository();
+        this.feedbackRepository = new FeedbackDAO();
+        this.reservationRepository = new ReservationDAO();
     }
 
 

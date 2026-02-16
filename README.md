@@ -1,209 +1,127 @@
 # 🏖️ Turista Facoltoso - Sistema Gestione Affitti Vacanze
 
-Sistema Full-Stack per la gestione di una piattaforma di affitto case vacanze con **Java/Javalin** (Backend) e **React/TypeScript** (Frontend).
+[![Java](https://img.shields.io/badge/Backend-Java%2021-orange?style=flat-square&logo=openjdk)](https://www.oracle.com/java/)
+[![Javalin](https://img.shields.io/badge/Framework-Javalin%206-blue?style=flat-square)](https://javalin.io/)
+[![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 
-## 📋 Indice
-
-- [Panoramica](#-panoramica)
-- [Tecnologie](#-tecnologie)
-- [Architettura](#-architettura)
-- [Modello Dati](#-modello-dati)
-- [API Endpoints](#-api-endpoints)
-- [Installazione](#-installazione)
-- [Requisiti](#-requisiti)
+**Turista Facoltoso** è una piattaforma Full-Stack per la gestione completa di un ecosistema di affitto case vacanze. Il progetto si focalizza sulla solidità della logica di business, l'integrità dei dati e un'esperienza utente fluida per il backoffice.
 
 ---
 
-## 🎯 Panoramica
+## Panoramica
 
-Piattaforma backoffice per gestire utenti, host, abitazioni, prenotazioni e feedback senza autenticazione. Focus sulla logica di business e gestione dati.
+Piattaforma gestionale progettata per amministrare utenti, host, abitazioni e prenotazioni. Il sistema gestisce l'intero ciclo di vita del soggiorno, dal controllo disponibilità al feedback post-permanenza.
 
-### Caratteristiche
-
-- ✅ CRUD completo per tutte le entità
-- ✅ Prenotazioni con controllo disponibilità real-time
-- ✅ Dashboard statistiche
-- ✅ Interfaccia responsive
-- ✅ Validazione client + server
-- ✅ Calcolo automatico costi
-
----
-
-## 🛠️ Tecnologie
-
-**Backend:** Java 17, Javalin 6, PostgreSQL, Lombok, JDBC  
-**Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, date-fns  
-**Tools:** Maven, npm, Git
+### Caratteristiche Principali
+- **CRUD Completo:** Gestione totale di tutte le entità del dominio.
+- **Smart Booking:** Prenotazioni con controllo disponibilità in tempo reale e calcolo costi automatico.
+- **Status Host:** Logica automatizzata per lo stato di "Super-Host" (basata su ≥100 prenotazioni).
+- **Dashboard Statistiche:** Monitoraggio ricavi, media camere e metriche di piattaforma.
+- **Validazione Dual-Layer:** Controlli rigorosi sia lato Client (React) che lato Server (Java/DB).
+- **UX Moderna:** Interfaccia responsive con notifiche toast e componenti interattivi.
 
 ---
 
-## 🏗️ Architettura
+## Tecnologie Utilizzate
 
-### Backend - Layered Architecture
-```
-Controller → Service (Business Logic) → Repository (Data Access) → Database
-```
-
-**Package Structure:**
-```
-com.lorenzo.pelone/
-├── config/         # Database configuration
-├── controller/     # HTTP handlers
-├── dto/            # Request/Response objects
-├── model/          # Domain entities
-├── repository/     # Data access layer
-├── service/        # Business logic
-└── Main.java
-```
-
-**Frontend Structure:**
-```
-src/
-├── components/     # UI components
-├── context/        # Global state
-├── pages/          # Route components
-├── types/          # TypeScript interfaces
-└── App.tsx
-```
+| Layer | Tecnologie |
+| :--- | :--- |
+| **Backend** | Java 21, Javalin 6, PostgreSQL, Lombok, JDBC, Maven |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, date-fns |
+| **Tools** | Git, Postman, npm |
 
 ---
 
-## 📊 Modello Dati
+## Architettura del Sistema
 
-### Entità Principali
+Il progetto adotta una **Layered Architecture** per garantire manutenibilità e separazione delle responsabilità.
 
-**User:** id, name, last_name, email, address  
-**Host:** user_id (FK), host_code (unique), super_host  
-**Habitation:** id, host_code (FK), name, description, address, floor, rooms, price, start_available, end_available  
-**Reservation:** id, habitation_id (FK), user_id (FK), status, start_date, end_date  
-**Feedback:** id, reservation_id (FK), user_id (FK), host_user_id (FK), title, text, rating (1-5)
+### Backend Structure (`com.lorenzo.pelone`)
+- `config/`: Configurazione database e pool di connessioni.
+- `controller/`: Gestione delle richieste HTTP e routing API.
+- `service/`: Logica di business e regole di validazione.
+- `repository/`: Layer di persistenza (Query SQL via JDBC).
+- `model/`: Entità del dominio (POJO).
+- `dto/`: Oggetti per il trasferimento dati ottimizzato.
 
-### Relazioni
-```
-Users ←→ Hosts → Habitations → Reservations → Feedback
-  ↓                                    ↓
-  └─────────────────────────────────────┘
-```
+### Frontend Structure (`/src`)
+- `components/`: UI components riutilizzabili.
+- `context/`: Gestione dello stato globale.
+- `pages/`: Componenti di pagina e routing.
+- `types/`: Interfacce e definizioni TypeScript.
 
 ---
 
-## 🔌 API Endpoints
+## Modello Dati
 
-**Base URL:** `http://localhost:7070/api/v1`
+### Entità e Relazioni
+- **User:** Anagrafica utente (Name, LastName, Address, Email).
+- **Host:** Estensione dell'utente con `host_code` PK  e flag `super_host`.
+- **Habitation:** Dettagli immobile, costo e range di disponibilità.
+- **Reservation:** Collegamento utente-abitazione con stato (Confirmed, Annulled, Completed).
+- **Feedback:** Recensioni legate a specifiche prenotazioni (Rating 1-5).
 
-### Users
-- `GET /users` - Lista tutti
-- `GET /users/{id}` - Dettagli
-- `POST /users` - Crea (body: `{user: {...}, host: boolean}`)
+---
 
-### Hosts
-- `GET /hosts` - Lista tutti
-- `GET /hosts/{hostCode}` - Per codice
+## API Endpoints (v1)
+
+**Base URL:** `http://localhost:7000/api/v1`
+
+### Users & Hosts
+| Metodo | Endpoint | Descrizione |
+| :--- | :--- | :--- |
+| `GET` | `/users` | Lista tutti gli utenti registrati |
+| `GET` | `/users/{id}` | Dettagli di un singolo utente |
+| `POST` | `/users` | Registra nuovo Utente o Host |
+| `GET` | `/hosts` | Lista tutti gli Host |
+| `GET` | `/hosts/{hostCode}` | Recupera Host tramite codice univoco |
 
 ### Habitations
-- `GET /habitations` - Lista tutte
-- `POST /habitations` - Crea (body: `{hostCode: int, habitation: {...}}`)
+| Metodo | Endpoint | Descrizione |
+| :--- | :--- | :--- |
+| `GET` | `/habitations` | Lista globale delle abitazioni |
+| `GET` | `/hosts/{hostCode}/habitations` | Lista abitazioni gestite da un Host specifico |
+| `POST` | `/habitations` | Crea una nuova abitazione |
 
 ### Reservations
-- `GET /reservations` - Lista tutte
-- `POST /reservations` - Crea (body: `{habitationId, userId, startDate, endDate}`)
+| Metodo | Endpoint | Descrizione |
+| :--- | :--- | :--- |
+| `GET` | `/reservations` | Lista completa delle prenotazioni |
+| `GET` | `/reservations/last-month` | Prenotazioni effettuate nell'ultimo mese |
+| `GET` | `/reservations/statistics` | Statistiche aggregate (es. ricavi, volumi) |
+| `GET` | `/users/{userId}/reservations` | Storico prenotazioni di un utente specifico |
+| `POST` | `/reservations` | Crea prenotazione con validazione disponibilità |
 
 ### Feedback
-- `GET /feedback` - Lista tutti
-- `POST /feedback` - Crea (body: `{reservationId, userId, hostUserId, title, text, rating}`)
-
-**Response Codes:** 200 (OK), 201 (Created), 400 (Bad Request), 404 (Not Found), 500 (Server Error)
-
----
-
-## 🗺️ Rotte Frontend
-
-| Route | Descrizione |
-|-------|-------------|
-| `/` | Dashboard con statistiche |
-| `/create-user` | Form creazione utente/host |
-| `/new-habitation` | Form creazione abitazione |
-| `/new-reservation` | Form prenotazione con calendario |
-| `/feedback/:id` | Visualizzazione feedback |
+| Metodo | Endpoint | Descrizione |
+| :--- | :--- | :--- |
+| `GET` | `/feedback` | Lista di tutte le recensioni |
+| `POST` | `/feedback` | Invia un nuovo feedback |
 
 ---
 
-## 📦 Installazione
+## Requisiti & Qualità
 
-### Prerequisiti
-- Java 17+, Node.js 18+, PostgreSQL 14+, Git
-
-### Setup Database
-```bash
-createdb holiday_booking
-psql -d holiday_booking -f database/schema.sql
-```
-
-### Backend
-```bash
-cd backend
-# Configura src/main/resources/database.properties:
-# DB_URL=jdbc:postgresql://localhost:5432/holiday_booking
-# DB_USER=postgres
-# DB_PASSWORD=your_password
-
-mvn clean install
-java -jar target/holiday-booking-1.0.jar
-```
-✅ Backend: `http://localhost:7070`
-
-### Frontend
-```bash
-cd frontend
-npm install
-echo "VITE_API_URL=http://localhost:7070" > .env
-npm run dev
-```
-✅ Frontend: `http://localhost:5173`
+- **Performance:** Risposte API < 500ms per operazioni standard.
+- **Affidabilità:** Gestione transazionale per evitare dati inconsistenti.
+- **Sicurezza:** Protezione da SQL Injection tramite `PreparedStatement`.
+- **Scalabilità:** Database ottimizzato con indici per query su grandi volumi di dati.
+- **Usabilità:** Interfaccia responsive testata su diversi dispositivi.
 
 ---
 
-## 📋 Requisiti
+## Utilizzo Rapido
 
-### Funzionali
-- **Utenti:** CRUD, validazione email, creazione host
-- **Host:** Generazione codice univoco, super-host (≥100 prenotazioni)
-- **Abitazioni:** CRUD, validazione host, periodo disponibilità
-- **Prenotazioni:** Controllo disponibilità, validazione date, calcolo costi, stati (Confirmed/Annulled/Completed)
-- **Feedback:** Rating 1-5, associazione a prenotazione/host
-- **Statistiche:** Media camere, ricavi totali, dashboard
-
-### Non Funzionali
-- **Performance:** API < 500ms (semplici), < 2s (complesse)
-- **Scalabilità:** 10K+ utenti, query ottimizzate, indici DB
-- **Affidabilità:** Transazioni, rollback automatico, logging completo
-- **Usabilità:** Responsive, toast notifications, validazione real-time
-- **Sicurezza:** PreparedStatement, CORS, constraint DB
-- **Manutenibilità:** Pattern MVC/Repository, separazione concerns
+1. **Crea Utente/Host:** Accedi a `/create-user` e registra un profilo (opzione Host per affittare).
+2. **Pubblica Abitazione:** Vai su `/new-habitation` e inserisci i dettagli dell'immobile.
+3. **Prenota:** Dalla Dashboard, seleziona un abitazione, scegli le date dal calendario e l'utente che effettua la prenotazione, poi conferma.
+4. **Dashboard:** Monitora i totali e i dettagli delle prenotazioni direttamente dalla Home.
 
 ---
 
-## 🚀 Utilizzo
+## Autore
 
-**Crea Utente/Host:** `/create-user` → compila form → checkbox "is Host" genera `host_code`  
-**Crea Abitazione:** `/new-habitation` → seleziona host → dettagli → periodo disponibilità  
-**Crea Prenotazione:** Homepage → click abitazione → calendario (date grigie = occupate) → utente → submit  
-**Dashboard:** Homepage mostra totali + click card per dettagli in dialog
+**Lorenzo Pelone** *Progetto Full-Stack Development - 2026*
 
----
-
-## 👤 Autore
-
-**Lorenzo Pelone** - Progetto finale Full-Stack Development
-
----
-
-## 📄 Licenza
-
-Progetto educativo - © 2026
-
-<div align="center">
-
-**Made with ❤️ and ☕**
-
-</div>

@@ -28,7 +28,17 @@ public class HabitationController {
                 List<HabitationModel> habitations = habitationService.getAllHabitations();
                 ctx.json(habitations);
             } catch (Exception e) {
-                logger.error("Error fetching habitations", e);
+                logger.error("Error fetching habitations: ", e);
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
+            }
+        });
+
+        app.get(BASE_PATH + "/hosts/{hostCode}/habitations", ctx -> {
+            try {
+                List<HabitationModel> habitations = habitationService.getAllHabitationsByHostCode(Integer.parseInt(ctx.pathParam("hostCode")));
+                ctx.json(habitations);
+            } catch (Exception e) {
+                logger.error("Error fetching habitations by hostCode: ", e);
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
             }
         });
@@ -37,7 +47,6 @@ public class HabitationController {
             try {
                 CreateHabitationRequest requestDTO = ctx.bodyAsClass(CreateHabitationRequest.class);
                 
-                // Validazione input
                 if (requestDTO.getHabitation() == null) {
                     ctx.status(HttpStatus.BAD_REQUEST)
                        .result("Habitation data is required");
@@ -46,7 +55,6 @@ public class HabitationController {
                 
                 HabitationModel habitation = requestDTO.getHabitation();
                 
-                // Validazioni campi obbligatori
                 if (habitation.getName() == null || habitation.getName().trim().isEmpty()) {
                     ctx.status(HttpStatus.BAD_REQUEST)
                        .result("Name is required");
@@ -76,7 +84,6 @@ public class HabitationController {
                     return;
                 }
                 
-                // Crea l'abitazione
                 HabitationModel created = habitationService.createHabitation(
                     habitation, 
                     requestDTO.getHostCode()

@@ -8,7 +8,8 @@
   <artifactId>holiday_booking_be</artifactId>
   <version>1.0.0</version>
 
-  <name>holiday_booking_be</name>
+  <name>Holiday Booking System</name>
+  <description>Full-Stack System for vacation rental management</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -18,8 +18,8 @@ import com.lorenzo.pelone.model.HabitationModel;
 import com.lorenzo.pelone.model.ReservationModel;
 import com.lorenzo.pelone.model.UserModel;
 
-public class FeedbackRepository {
-    private static final Logger logger = LoggerFactory.getLogger(FeedbackRepository.class);
+public class FeedbackDAO {
+    private static final Logger logger = LoggerFactory.getLogger(FeedbackDAO.class);
 
 
     public List<FeedbackModel> allFeedback() throws SQLException {

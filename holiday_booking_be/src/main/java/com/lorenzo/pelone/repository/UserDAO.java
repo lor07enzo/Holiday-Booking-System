@@ -17,8 +17,8 @@ import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
 
-public class UserRepository {
-    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
+public class UserDAO {
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
 
     public List<UserModel> allUsers() {

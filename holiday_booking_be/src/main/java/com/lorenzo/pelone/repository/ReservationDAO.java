@@ -20,8 +20,8 @@ import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.ReservationModel;
 import com.lorenzo.pelone.model.UserModel;
 
-public class ReservationRepository {
-    private static final Logger logger = LoggerFactory.getLogger(ReservationRepository.class);
+public class ReservationDAO {
+    private static final Logger logger = LoggerFactory.getLogger(ReservationDAO.class);
 
     String sqlReservation = "SELECT r.*, " +
                             "h.id as hab_id, h.name as hab_name, h.description, h.address as hab_address, " +
@@ -184,6 +184,47 @@ public class ReservationRepository {
         return null;
     }
 
+    // Metodo per avere l'ultima prenotazione di un'utente
+    public ReservationModel getLastReservationByUser(int userId) throws SQLException {
+        String sql = "SELECT r.*, " +
+                 "u.name as user_name, u.last_name as user_lastname, u.email as user_email, " +
+                 "h.name as hab_name, h.address as hab_address " +
+                 "FROM reservations r " +
+                 "JOIN users u ON r.user_id = u.id " +
+                 "JOIN habitations h ON r.habitation_id = h.id " +
+                 "WHERE r.user_id = ? " +
+                 "ORDER BY r.start_date DESC LIMIT 1";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+    
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    ReservationModel res = new ReservationModel();
+                    res.setId(rs.getInt("id"));
+                    res.setStatus(rs.getString("status"));
+                    res.setStartDate(rs.getDate("start_date").toLocalDate());
+                    res.setEndDate(rs.getDate("end_date").toLocalDate());
+    
+                    UserModel user = new UserModel();
+                    user.setName(rs.getString("user_name"));
+                    user.setLastName(rs.getString("user_lastname"));
+                    user.setEmail(rs.getString("user_email"));
+                    res.setUser(user);
+    
+                    HabitationModel hab = new HabitationModel();
+                    hab.setName(rs.getString("hab_name"));
+                    hab.setAddress(rs.getString("hab_address"));
+                    res.setHabitation(hab); 
+    
+                    return res;
+                }
+            }
+        }
+        return null;
+    }
+
     public int insertReservation(Connection conn, int habitationId, int userId, 
                                  LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "INSERT INTO reservations (habitation_id, user_id, status, start_date, end_date) " +
@@ -310,7 +351,7 @@ public class ReservationRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("Sincronizzazione database: " + rowsUpdated + " prenotazioni portate a 'Completed'.");
+                System.out.println("Syncronization database: " + rowsUpdated + " reservations changed to 'Completed'.");
             }
         }
     }

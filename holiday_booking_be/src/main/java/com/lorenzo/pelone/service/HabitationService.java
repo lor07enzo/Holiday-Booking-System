@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.HabitationModel;
 import com.lorenzo.pelone.model.HostModel;
-import com.lorenzo.pelone.repository.HabitationRepository;
+import com.lorenzo.pelone.repository.HabitationDAO;
 
 public class HabitationService {
     private static final Logger logger = LoggerFactory.getLogger(HabitationService.class);
-    private final HabitationRepository habitationRepository;
+    private final HabitationDAO habitationRepository;
 
     public HabitationService() {
-        this.habitationRepository = new HabitationRepository();
+        this.habitationRepository = new HabitationDAO();
     }
 
 
@@ -30,8 +30,20 @@ public class HabitationService {
         }
     }
 
+    public List<HabitationModel> getAllHabitationsByHostCode(int hostCode) {
+        try {
+            if (!habitationRepository.hostCodeExists(hostCode)) {
+                throw new IllegalArgumentException("Host code does not exist");
+            }
+            return habitationRepository.allHabitationsByHostCode(hostCode);
+
+        } catch (SQLException e) {
+            logger.error("Error checking if host code exists: ", e);
+            throw new RuntimeException("Error validating host: ", e);
+        }
+    }
+
     public HabitationModel createHabitation(HabitationModel habitation, int hostCode) {
-        // Validazione business
         try {
             if (!habitationRepository.hostCodeExists(hostCode)) {
                 throw new IllegalArgumentException("Host code does not exist");
@@ -41,7 +53,6 @@ public class HabitationService {
             throw new RuntimeException("Error validating host", e);
         }
         
-        // Validazioni date
         if (habitation.getStartAvailable().isAfter(habitation.getEndAvailable())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }

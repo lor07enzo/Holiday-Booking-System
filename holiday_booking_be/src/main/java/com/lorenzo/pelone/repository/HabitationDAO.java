@@ -16,8 +16,8 @@ import com.lorenzo.pelone.model.HabitationModel;
 import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
 
-public class HabitationRepository {
-    private static final Logger logger = LoggerFactory.getLogger(HabitationRepository.class);
+public class HabitationDAO {
+    private static final Logger logger = LoggerFactory.getLogger(HabitationDAO.class);
 
 
     public List<HabitationModel> allHabitations() throws SQLException {
@@ -34,34 +34,34 @@ public class HabitationRepository {
             ResultSet rs = ps.executeQuery();
             
             while (rs.next()) {
-                
-                UserModel user = new UserModel();
-                user.setId(rs.getInt("user_id"));
-                user.setName(rs.getString("user_name"));
-                user.setLastName(rs.getString("last_name"));
-                user.setEmail(rs.getString("email"));
-                user.setAddress(rs.getString("user_address"));
-                user.setCreatedAt(rs.getTimestamp("user_created_at").toLocalDateTime());
-                
-                HostModel host = new HostModel();
-                host.setUser(user);
-                host.setHostCode(rs.getInt("host_code"));
-                host.setSuperHost(rs.getBoolean("super_host"));
-
-                HabitationModel habitation = new HabitationModel();
-                habitation.setId(rs.getInt("id"));
-                habitation.setHost(host);
-                habitation.setName(rs.getString("name"));
-                habitation.setDescription(rs.getString("description"));
-                habitation.setAddress(rs.getString("address"));
-                habitation.setFloor(rs.getInt("floor"));
-                habitation.setRooms(rs.getInt("rooms"));
-                habitation.setPrice(rs.getDouble("price"));
-                habitation.setStartAvailable(rs.getDate("start_available").toLocalDate());
-                habitation.setEndAvailable(rs.getDate("end_available").toLocalDate());
-                habitation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                
-                habitations.add(habitation);
+                habitations.add(mapResultSetToHabitation(rs));
+            }
+        }
+        return habitations;
+    }
+    
+    // Fà ritornare tutte le abitazioni di un host
+    public List<HabitationModel> allHabitationsByHostCode (int hostCode) throws SQLException {
+        List<HabitationModel> habitations = new ArrayList<>();
+        String sql = """
+            SELECT hab.*, 
+                   u.id as user_id, u.name as user_name, u.last_name, u.email, u.address as user_address, u.created_at as user_created_at, 
+                   h.host_code, h.super_host 
+            FROM habitations hab 
+            JOIN hosts h ON hab.host_code = h.host_code 
+            JOIN users u ON h.user_id = u.id
+            WHERE h.host_code = ?
+            """;
+    
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, hostCode);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Qui puoi chiamare un metodo di mapping privato per non riscrivere tutto
+                    habitations.add(mapResultSetToHabitation(rs));
+                }
             }
         }
         return habitations;
@@ -114,7 +114,6 @@ public class HabitationRepository {
         }
     }
 
-
     public HabitationModel insertHabitation (Connection conn, HabitationModel habitation, int hostCode) throws SQLException {
         String sql = "INSERT INTO habitations (host_code, name, description, address, floor, rooms, price, start_available, end_available) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, created_at";
@@ -155,5 +154,35 @@ public class HabitationRepository {
             }
             return false;
         }
+    }
+
+    private HabitationModel mapResultSetToHabitation(ResultSet rs) throws SQLException {
+        UserModel user = new UserModel();
+        user.setId(rs.getInt("user_id"));
+        user.setName(rs.getString("user_name"));
+        user.setLastName(rs.getString("last_name"));
+        user.setEmail(rs.getString("email"));
+        user.setAddress(rs.getString("user_address"));
+        user.setCreatedAt(rs.getTimestamp("user_created_at").toLocalDateTime());
+    
+        HostModel host = new HostModel();
+        host.setUser(user);
+        host.setHostCode(rs.getInt("host_code"));
+        host.setSuperHost(rs.getBoolean("super_host"));
+    
+        HabitationModel habitation = new HabitationModel();
+        habitation.setId(rs.getInt("id"));
+        habitation.setHost(host);
+        habitation.setName(rs.getString("name"));
+        habitation.setDescription(rs.getString("description"));
+        habitation.setAddress(rs.getString("address"));
+        habitation.setFloor(rs.getInt("floor"));
+        habitation.setRooms(rs.getInt("rooms"));
+        habitation.setPrice(rs.getDouble("price"));
+        habitation.setStartAvailable(rs.getDate("start_available").toLocalDate());
+        habitation.setEndAvailable(rs.getDate("end_available").toLocalDate());
+        habitation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+    
+        return habitation;
     }
 }
