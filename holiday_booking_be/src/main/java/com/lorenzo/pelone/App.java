@@ -1,58 +1,15 @@
 package com.lorenzo.pelone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.lorenzo.pelone.config.DatabaseConfig;
-import com.lorenzo.pelone.controller.FeedbackController;
-import com.lorenzo.pelone.controller.HabitationController;
-import com.lorenzo.pelone.controller.ReservationController;
-import com.lorenzo.pelone.controller.UserController;
-import com.sun.tools.javac.Main;
-
-import io.javalin.Javalin;
-import io.javalin.json.JavalinJackson;
+import lombok.extern.slf4j.Slf4j;
 
 
-public class App 
-{
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
-    public static void main( String[] args )
-    {
-        UserController userController = new UserController();
-        HabitationController habitationController = new HabitationController();
-        ReservationController reservationController = new ReservationController();
-        FeedbackController feedbackController = new FeedbackController();
-
-        DatabaseConfig.init("config.properties");
-
-        // Configurazione Jackson per LocalDateTime
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        Javalin app = Javalin.create(config -> {
-            config.jsonMapper(new JavalinJackson(mapper));
-        }).start(7000);
-
-        app.before(ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "*");
-            ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        });
-
-        app.options("/*", ctx -> { 
-            ctx.status(204); 
-        });
-        logger.info("Server started on port 7000");
-
-        // Registrazione delle rotte
-        userController.registerRoutes(app);
-        habitationController.registerRoutes(app);
-        reservationController.registerRoutes(app);
-        feedbackController.registerRoutes(app);
+@SpringBootApplication
+@Slf4j
+public class App {
+    public static void main( String[] args ) {
+        SpringApplication.run(App.class, args);
     }
 }

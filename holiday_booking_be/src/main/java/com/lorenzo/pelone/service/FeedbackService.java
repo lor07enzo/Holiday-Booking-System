@@ -1,69 +1,53 @@
 package com.lorenzo.pelone.service;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.lorenzo.pelone.model.FeedbackModel;
 import com.lorenzo.pelone.model.ReservationModel;
+import com.lorenzo.pelone.model.UserModel;
 import com.lorenzo.pelone.repository.FeedbackDAO;
 import com.lorenzo.pelone.repository.ReservationDAO;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class FeedbackService {
-    private static final Logger logger = LoggerFactory.getLogger(FeedbackService.class);
-    private final FeedbackDAO feedbackRepository;
-    private final ReservationDAO reservationRepository;
+    private final FeedbackDAO feedbackDAO;
+    private final ReservationDAO reservationDAO;
 
-    public FeedbackService() {
-        this.feedbackRepository = new FeedbackDAO();
-        this.reservationRepository = new ReservationDAO();
-    }
-
-
+    
     public List<FeedbackModel> getAllFeedback() {
-        try {
-            return feedbackRepository.allFeedback();
-        } catch (SQLException e) {
-            logger.error("Error fetching feedback", e);
-            throw new RuntimeException("Error fetching feedback: " + e.getMessage());
-        }
+        return feedbackDAO.findAll();
     }
 
-    public String createFeedback(int reservationId, int userId, String title, String text, int score) {
-        try {
-            ReservationModel res = reservationRepository.getReservationById(reservationId);
-    
-            if (res == null) {
-                throw new IllegalArgumentException("Reservation not found.");
-            }
+    @Transactional
+    public String createFeedback(ReservationModel reservationId, UserModel user, String title, String text, int score) {
+        ReservationModel res = reservationDAO.findById(reservationId).orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
 
-            boolean alreadyExists = feedbackRepository.existsByReservationId(reservationId);
-            if (alreadyExists) {
-                throw new IllegalArgumentException("A feedback for this reservation has already been submitted.");
-            }
-
-            if (!"Completed".equals(res.getStatus())) {
-                throw new IllegalArgumentException("You can only leave feedback for completed bookings.");
-            }
-    
-            if (score < 1 || score > 5) {
-                throw new IllegalArgumentException("The score must be between 1 and 5.");
-            }
-    
-            if (title == null || title.trim().isEmpty()) {
-                throw new IllegalArgumentException("Title of feedback is required.");
-            }
-    
-            if (title.length() > 50) {
-                throw new IllegalArgumentException("The title cannot exceed 50 characters.");
-            }
-            return feedbackRepository.insertFeedback(reservationId, userId, title, text, score);
-
-        } catch (SQLException e) {
-            logger.error("Error SQL during POST feedback", e);
-            throw new RuntimeException("Internal error during feedback saving.");
+        if (feedbackDAO.existsByReservationId(reservationId.getId())) {
+            throw new IllegalArgumentException("A feedback for this reservation has already been submitted.");
         }
+
+        if (!"Completed".equalsIgnoreCase(res.getStatus())) {
+            throw new IllegalArgumentException("You can only leave feedback for completed bookings.");
+        }
+
+        FeedbackModel feedback = new FeedbackModel();
+        feedback.setReservation(res); 
+        feedback.setUser(user);
+        feedback.setTitle(title);
+        feedback.setText(text);
+        feedback.setScore(score);
+
+        FeedbackModel saved = feedbackDAO.save(feedback);
+        
+        log.info("Feedback created successfully for reservation {}", reservationId);
+        return String.valueOf(saved.getId());
     }
 }

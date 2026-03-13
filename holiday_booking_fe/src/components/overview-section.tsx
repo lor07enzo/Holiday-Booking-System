@@ -190,7 +190,7 @@ export const OverviewSection = (
                                     <Table>
                                         <TableHeader className="sticky top-0 bg-background z-10">
                                             <TableRow>
-                                                <TableHead className="whitespace-nowrap">ID</TableHead>
+                                                <TableHead className="whitespace-nowrap">Host Code</TableHead>
                                                 <TableHead className="whitespace-nowrap">Name</TableHead>
                                                 <TableHead className="whitespace-nowrap">Email</TableHead>
                                                 <TableHead className="whitespace-nowrap">Status</TableHead>

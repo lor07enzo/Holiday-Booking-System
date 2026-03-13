@@ -1,108 +1,62 @@
 package com.lorenzo.pelone.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lorenzo.pelone.dto.CreateReservationRequest;
 import com.lorenzo.pelone.model.ReservationModel;
 import com.lorenzo.pelone.service.ReservationService;
 
-import io.javalin.Javalin;
-import io.javalin.http.HttpStatus;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1")
+@Slf4j
 public class ReservationController {
-    private static final String BASE_PATH = "/api/v1";
-    private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
     private final ReservationService reservationService;
 
-    public ReservationController() {
-        this.reservationService = new ReservationService();
+    @GetMapping("/reservations")
+    public List<ReservationModel> getAllReservations() {
+        return reservationService.getAllReservations();
     }
 
-    public void registerRoutes(Javalin app) {
-        app.get(BASE_PATH + "/reservations", ctx -> {
-            try {
-                List<ReservationModel> reservations = reservationService.getAllReservations();
-                ctx.json(reservations);
-            } catch (Exception e) {
-                logger.error("Error fetching reservations", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservations");
-            }
-        });
-
-        app.get(BASE_PATH + "/reservations/last-month", ctx -> {
-            try {
-                List<ReservationModel> resLastMonth = reservationService.getReservationsLastMonth();
-                ctx.json(resLastMonth);
-            } catch (Exception e) {
-                logger.error("Error fetching reservations for last month", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservations for last month" + e);
-            }
-        });
-
-        app.get(BASE_PATH + "/reservations/statistics", ctx -> {
-            try {
-                ctx.json(reservationService.getDashboardStats());
-            } catch (Exception e) {
-                logger.error("Error fetching statistics: ", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching statistics: " + e);
-            }
-        });
-
-        app.get(BASE_PATH + "/users/{userId}/reservations", ctx -> {
-            try {
-                int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-                ReservationModel res = reservationService.lastReservationByUser(userId);
-                ctx.json(res);
-            } catch (Exception e) {
-                logger.error("Error fetching reservation for this user: ", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error fetching reservation for this user: " + e);
-            }
-        });
-
-        app.post(BASE_PATH + "/reservations", ctx -> {
-            try {
-                CreateReservationRequest requestDTO = ctx.bodyAsClass(CreateReservationRequest.class);
-                
-                if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST).result("Start and End dates are required");
-                    return;
-                }
-                
-                if (requestDTO.getHabitationId() <= 0) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Valid habitation ID is required");
-                    return;
-                }
-                
-                if (requestDTO.getUserId() <= 0) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Valid user ID is required");
-                    return;
-                }
-                
-                ReservationModel created = reservationService.createReservation(
-                    requestDTO.getHabitationId(),
-                    requestDTO.getUserId(),
-                    requestDTO.getStartDate(),
-                    requestDTO.getEndDate()
-                );
-                
-                ctx.status(HttpStatus.CREATED)
-                   .json(created);
-                
-            } catch (IllegalArgumentException e) {
-                logger.warn("Validation error: {}", e.getMessage());
-                ctx.status(HttpStatus.BAD_REQUEST)
-                   .result(e.getMessage());
-                   
-            } catch (Exception e) {
-                logger.error("Error creating reservation", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                   .result("Error creating reservation");
-            }
-        });
+    @GetMapping("/reservations/last-month")
+    public List<ReservationModel> getReservationsLastMonth() {
+        return reservationService.getReservationsLastMonth();
     }
+
+    @GetMapping("/reservations/statistics")
+    public Map<String, Object> getDashboardStats() {
+        return reservationService.getDashboardStats();
+    }
+
+    @GetMapping("/users/{userId}/reservations")
+    public ReservationModel getLastReservationByUser(@PathVariable Integer userId) {
+        return reservationService.lastReservationByUser(userId);
+    }
+
+    @PostMapping("/reservations")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReservationModel createReservation(@Valid @RequestBody CreateReservationRequest requestDTO) {
+        return reservationService.createReservation(
+            requestDTO.getHabitationId(),
+            requestDTO.getUserId(),
+            requestDTO.getStartDate(),
+            requestDTO.getEndDate()
+        );
+    }
+    
 }

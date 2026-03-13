@@ -2,104 +2,53 @@ package com.lorenzo.pelone.controller;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lorenzo.pelone.dto.CreateHabitationRequest;
 import com.lorenzo.pelone.model.HabitationModel;
 import com.lorenzo.pelone.service.HabitationService;
 
-import io.javalin.Javalin;
-import io.javalin.http.HttpStatus;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1")
+@Slf4j
 public class HabitationController {
-    private static final String BASE_PATH = "/api/v1";
-    private static final Logger logger = LoggerFactory.getLogger(HabitationController.class);
+
     private final HabitationService habitationService;
 
-    public HabitationController() {
-        this.habitationService = new HabitationService();
+
+    @GetMapping("/habitations")
+    public List<HabitationModel> getAllHabitations() {
+        return habitationService.getAllHabitations();
+    }
+   
+    @GetMapping("/hosts/{hostCode}/habitations")
+    public List<HabitationModel> getAllHabitationsByHostCode(@PathVariable int hostCode) {
+        return habitationService.getAllHabitationsByHostCode(hostCode);
     }
 
-
-    public void registerRoutes(Javalin app) {
-        app.get(BASE_PATH + "/habitations", ctx -> {
-            try {
-                List<HabitationModel> habitations = habitationService.getAllHabitations();
-                ctx.json(habitations);
-            } catch (Exception e) {
-                logger.error("Error fetching habitations: ", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
-            }
-        });
-
-        app.get(BASE_PATH + "/hosts/{hostCode}/habitations", ctx -> {
-            try {
-                List<HabitationModel> habitations = habitationService.getAllHabitationsByHostCode(Integer.parseInt(ctx.pathParam("hostCode")));
-                ctx.json(habitations);
-            } catch (Exception e) {
-                logger.error("Error fetching habitations by hostCode: ", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
-            }
-        });
-
-        app.post(BASE_PATH + "/habitations", ctx -> {
-            try {
-                CreateHabitationRequest requestDTO = ctx.bodyAsClass(CreateHabitationRequest.class);
-                
-                if (requestDTO.getHabitation() == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Habitation data is required");
-                    return;
-                }
-                
-                HabitationModel habitation = requestDTO.getHabitation();
-                
-                if (habitation.getName() == null || habitation.getName().trim().isEmpty()) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Name is required");
-                    return;
-                }
-                
-                if (habitation.getAddress() == null || habitation.getAddress().trim().isEmpty()) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Address is required");
-                    return;
-                }
-                
-                if (habitation.getPrice() <= 0) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Price must be greater than 0");
-                    return;
-                }
-                
-                if (habitation.getRooms() <= 0) {
-                    ctx.status(HttpStatus.BAD_REQUEST)
-                       .result("Rooms must be greater than 0");
-                    return;
-                }
-                
-                if (habitation.getStartAvailable() == null || habitation.getEndAvailable() == null) {
-                    ctx.status(HttpStatus.BAD_REQUEST).result("Start and end dates are required");
-                    return;
-                }
-                
-                HabitationModel created = habitationService.createHabitation(
-                    habitation, 
-                    requestDTO.getHostCode()
-                );
-                
-                ctx.status(HttpStatus.CREATED).json(created);
-                
-            } catch (IllegalArgumentException e) {
-                logger.warn("Validation error: ", e.getMessage());
-                ctx.status(HttpStatus.BAD_REQUEST)
-                   .result(e.getMessage());
-                   
-            } catch (Exception e) {
-                logger.error("Error creating habitation", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result(e.getMessage());
-            }
-        });
+    @PostMapping("/habitations")
+    @ResponseStatus(HttpStatus.CREATED)
+    public HabitationModel createHabitation(@Valid @RequestBody CreateHabitationRequest requestDTO) {
+        
+        log.info("Creating new habitation for host: {}", requestDTO.getHostCode());
+        
+        return habitationService.createHabitation(
+            requestDTO.getHabitation(), 
+            requestDTO.getHostCode()
+        );
     }
+    
 }

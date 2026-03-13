@@ -2,54 +2,49 @@ package com.lorenzo.pelone.controller;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lorenzo.pelone.dto.CreateFeedbackRequest;
 import com.lorenzo.pelone.model.FeedbackModel;
 import com.lorenzo.pelone.service.FeedbackService;
 
-import io.javalin.Javalin;
-import io.javalin.http.HttpStatus;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@RestController
+@RequestMapping("/api/v1/feedback")
+@RequiredArgsConstructor
+@Slf4j
 public class FeedbackController {
-    private static final String BASE_PATH = "/api/v1";
-    private static final Logger logger = LoggerFactory.getLogger(FeedbackController.class);
+
     private final FeedbackService feedbackService;
 
-    public FeedbackController() {
-        this.feedbackService = new FeedbackService();
+    @GetMapping
+    public List<FeedbackModel> getAllFeedback() {
+        return feedbackService.getAllFeedback();
     }
-
-
-    public void registerRoutes(Javalin app) {
-        app.get(BASE_PATH + "/feedback", ctx -> {
-            List<FeedbackModel> feedbacks = feedbackService.getAllFeedback();
-            ctx.json(feedbacks);
-        });
-
-        app.post(BASE_PATH + "/feedback", ctx -> {
-            try {
-                CreateFeedbackRequest request = ctx.bodyAsClass(CreateFeedbackRequest.class);
-                
-                String newId = feedbackService.createFeedback(
-                    request.getReservationId(),
-                    request.getUserId(),
-                    request.getTitle(),
-                    request.getText(),
-                    request.getScore()
-                );
-
-                ctx.status(HttpStatus.CREATED).result("Feedback crated successfully with ID: " + newId);
-
-            } catch (IllegalArgumentException e) {
-                logger.warn("Validation error feedback: {}", e.getMessage());
-                ctx.status(HttpStatus.BAD_REQUEST).result(e.getMessage());
-                
-            } catch (Exception e) {
-                logger.error("Generic error for creating feedback", e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Internal Server error");
-            }
-        });
+    
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public String createFeedback(@Valid @RequestBody CreateFeedbackRequest request) {
+        log.info("Creating feedback for reservation ID: {}", request.getReservationId());
+        
+        String newId = feedbackService.createFeedback(
+            request.getReservationId(),
+            request.getUserId(),
+            request.getTitle(),
+            request.getText(),
+            request.getScore()
+        );
+        
+        return "Feedback created successfully with ID: " + newId;
     }
+    
 }

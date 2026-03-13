@@ -1,111 +1,63 @@
 package com.lorenzo.pelone.service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import com.lorenzo.pelone.config.DatabaseConfig;
 import com.lorenzo.pelone.model.HostModel;
 import com.lorenzo.pelone.model.UserModel;
 import com.lorenzo.pelone.repository.UserDAO;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private final UserDAO userRepository;
+    private final UserDAO userDAO;
 
-    public UserService() {
-        this.userRepository = new UserDAO();
-    }
-
-    
-    // Logica di business per gli utenti e host in GET
     public List<UserModel> getAllUsers() {
-        return userRepository.allUsers();
+        return userDAO.findAll();
     }
 
     public UserModel getUserById(int id) {
-        UserModel user = userRepository.userById(id);
-        if (user == null) {
-            throw new RuntimeException("User not found with ID: " + id);
-        } else {
-            return user;
-        }
+        return userDAO.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
 
     public List<HostModel> getAllHosts() {
-        return userRepository.allHosts();
+        return userDAO.findAllHosts();
     }
 
     public HostModel getHostByCode(int hostCode) {
-        HostModel host = userRepository.hostbyCode(hostCode);
-        if (host == null) {
-            throw new RuntimeException("Host not found with code: " + hostCode);
-        } else {
-            return host;
-        }
+        // Estraiamo il valore dall'Optional o lanciamo l'eccezione in una riga sola
+        return userDAO.findHostByCode(hostCode)
+                .orElseThrow(() -> new IllegalArgumentException("Host not found with code: " + hostCode));
     }
-    
-    // Logica di business per gli utenti e host in POST
+
+    @Transactional 
     public Object createUser(UserModel user, boolean isHost) {
-        try {
-            if (userRepository.emailExists(user.getEmail())) {
-                throw new IllegalArgumentException("Email already exists");
-            }
-        } catch (SQLException e) {
-            logger.error("Error checking email existence", e);
-            throw new RuntimeException("Error validating email", e);
-        }
         
-        Connection conn = null;
-        try {
-            conn = DatabaseConfig.getConnection();
-            conn.setAutoCommit(false);
-            
-            UserModel createdUser = userRepository.insertUser(conn, user);
-            
-            if (isHost) {
-                int hostCode = generateUniqueHostCode();
-                
-                HostModel host = userRepository.insertHost(conn, createdUser, hostCode);
-                
-                conn.commit();
-                logger.info("Host created successfully! User ID: {}, Host Code: {}", createdUser.getId(), host.getHostCode());
-                return host;
-            } else {
-                conn.commit();
-                logger.info("User created successfully! ID: ", createdUser.getId());
-                return createdUser;
-            }
-            
-        } catch (SQLException e) {
-            logger.error("Error creating user: ", e.getMessage(), e);
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                    logger.info("Transaction rolled back");
-                } catch (SQLException ex) {
-                    logger.error("Error rolling back", ex);
-                }
-            }
-            throw new RuntimeException("Error creating user", e);
-            
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    logger.error("Error closing connection", e);
-                }
-            }
+        if (userDAO.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
         }
+
+        UserModel createdUser = userDAO.save(user);
+
+        if (isHost) {
+            int hostCode = generateUniqueHostCode();
+            userDAO.insertHostNative(createdUser.getId(), hostCode, false);
+            log.info("Host created successfully! User ID: {}, Host Code: {}", createdUser.getId(), hostCode);
+            return userDAO.findHostByCode(hostCode).get();
+        }
+
+        log.info("User created successfully! ID: {}", createdUser.getId());
+        return createdUser;
     }
-    
-    // Generatore di hostCode
+
     private int generateUniqueHostCode() {
-        return (int) (Math.random() * 900000) + 100000;
+        return new Random().nextInt(900000) + 100000;
     }
 }

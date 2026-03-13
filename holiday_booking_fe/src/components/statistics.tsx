@@ -1,6 +1,6 @@
 import { useUsers } from "@/context/context";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Award, Bed, Calendar, CalendarDays, Euro, Home, Mail, MapPin, Search, Star, TrendingUp, Users } from "lucide-react";
+import { Award, Bed, Calendar, CalendarDays, Home, Mail, MapPin, Search, Star, TrendingUp, Users } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useEffect, useState } from "react";
@@ -305,7 +305,7 @@ export const Statistics = () => {
                                                 {habitationsHost.map((habHost) => (
                                                     <TableRow
                                                         key={habHost.id}
-                                                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                                                        className="cursor-pointer hover:bg-blue-100 transition-colors"
                                                         onClick={() => handleHabitationClick(habHost)}
                                                     >
                                                         <TableCell className="font-medium text-primary">
@@ -364,7 +364,7 @@ export const Statistics = () => {
                         />
                         <Button onClick={handleSearchRes} className="shrink-0">
                             <Search className="h-4 w-4 mr-2" />
-                            Cerca
+                            Search
                         </Button>
                     </div>
 

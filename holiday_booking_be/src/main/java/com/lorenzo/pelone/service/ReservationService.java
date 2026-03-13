@@ -1,137 +1,89 @@
 package com.lorenzo.pelone.service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import com.lorenzo.pelone.config.DatabaseConfig;
+import com.lorenzo.pelone.model.HabitationModel;
 import com.lorenzo.pelone.model.ReservationModel;
+import com.lorenzo.pelone.model.UserModel;
 import com.lorenzo.pelone.repository.HabitationDAO;
 import com.lorenzo.pelone.repository.ReservationDAO;
 import com.lorenzo.pelone.repository.UserDAO;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class ReservationService {
-    private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
-    private final ReservationDAO reservationRepository;
-    private final HabitationDAO habitationRepository;
-    private final UserDAO userRepository;
-
-    public ReservationService() {
-        this.reservationRepository = new ReservationDAO();
-        this.habitationRepository = new HabitationDAO();
-        this.userRepository = new UserDAO();
-    }
-
+    private final ReservationDAO reservationDAO;
+    private final HabitationDAO habitationDAO;
+    private final UserDAO userDAO;
 
     public List<ReservationModel> getAllReservations() {
-        try {
-            reservationRepository.updateExpiredReservations();
-            return reservationRepository.allReservations();
-        } catch (SQLException e) {
-            logger.error("Error fetching reservations", e);
-            throw new RuntimeException("Error fetching reservations: " + e.getMessage(), e);
-        }
+        reservationDAO.updateExpiredReservations(LocalDate.now());
+        return reservationDAO.findAll();
     }
 
     public List<ReservationModel> getReservationsLastMonth() {
-        try {
-            return reservationRepository.reservationsLastMonth();
-        } catch (SQLException e) {
-            logger.error("Errore nel filtraggio delle prenotazioni", e);
-            throw new RuntimeException("Error fetching reservations for last month: " + e.getMessage(), e);
-        }
+        LocalDate lastMonth = LocalDate.now().minusMonths(1);
+        return reservationDAO.findAllByStartDateAfter(lastMonth);
     }
 
-    public Map<String, Object> getDashboardStats() throws SQLException {
+    public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         
-        List<Map<String, Object>> hostsWithCounts = userRepository.getHostsWithMonthlyReservations();
-
-        stats.put("topUsers", reservationRepository.getTop5UsersByDays());
-        stats.put("allHosts", hostsWithCounts);
-        stats.put("topHosts", reservationRepository.getTopHosts());
-        stats.put("mostPopularHabitation", reservationRepository.getMostPopularHabitation());
+        stats.put("topUsers", reservationDAO.findTop5UsersByDays());
+        stats.put("allHosts", userDAO.getHostsWithMonthlyReservations());
+        stats.put("topHosts", reservationDAO.findTopHosts());
+        stats.put("mostPopularHabitation", reservationDAO.findMostPopularHabitation());
         
         return stats;
     }
 
-    public ReservationModel lastReservationByUser(int userId) throws SQLException {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("User ID not valid: " + userId);
-        }
-
-        if (userRepository.userById(userId) == null) {
-            throw new NoSuchElementException("This user not exist: " + userId);
-        }
-        ReservationModel lastRes = reservationRepository.getLastReservationByUser(userId);
-
-        if (lastRes == null) {
-            System.out.println("Not found reservation for this user: " + userId);
-        }
-
-        return lastRes;
+    public ReservationModel lastReservationByUser(int userId) {
+        return reservationDAO.findFirstByUserIdOrderByStartDateDesc(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No reservations found for user: " + userId));
     }
 
+    @Transactional // Gestisce tutto: se un metodo fallisce, fa rollback di TUTTO
     public ReservationModel createReservation(int habitationId, int userId, LocalDate startDate, LocalDate endDate) {
+        
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
-        
         if (startDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Cannot book dates in the past");
         }
-        
-        Connection conn = null;
-        try {
-            reservationRepository.checkAvailability(habitationId, userId, startDate, endDate);
-            
-            conn = DatabaseConfig.getConnection();
-            conn.setAutoCommit(false);
-            
-            int reservationId = reservationRepository.insertReservation(conn, habitationId, userId, startDate, endDate);
-            
-            conn.commit();
-            
-            ReservationModel complete = reservationRepository.getReservationById(reservationId);
 
-            int hostCode = habitationRepository.getHostCodeByHabitationId(habitationId);
-            userRepository.updateSuperHostStatus(hostCode);
-            
-            logger.info("Reservation created successfully! ID: {}", reservationId);
-            return complete;
-            
-        } catch (IllegalArgumentException e) {
-            throw e;
-            
-        } catch (SQLException e) {
-            logger.error("Error creating reservation or updating host: ", e);
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    logger.error("Error rolling back: ", ex);
-                }
-            }
-            throw new RuntimeException("Error Server: " + e.getMessage(), e);
-            
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    logger.error("Error closing connection", e);
-                }
-            }
+        boolean available = reservationDAO.isHabitationAvailable(habitationId, startDate, endDate);
+        if (!available) {
+            throw new IllegalArgumentException("Habitation is already booked for these dates");
         }
-    }
 
+        HabitationModel habitation = habitationDAO.findById(habitationId)
+            .orElseThrow(() -> new IllegalArgumentException("Habitation not found"));
+        UserModel user = userDAO.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        ReservationModel reservation = new ReservationModel();
+        reservation.setHabitation(habitation);
+        reservation.setUser(user);
+        reservation.setStartDate(startDate);
+        reservation.setEndDate(endDate);
+
+        ReservationModel saved = reservationDAO.save(reservation);
+
+        userDAO.updateSuperHostStatus(habitation.getHost().getHostCode());
+
+        log.info("Reservation created successfully for user {} in habitation {}", userId, habitationId);
+        return saved;
+    }
     
 }
