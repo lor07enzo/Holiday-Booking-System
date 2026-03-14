@@ -67,13 +67,6 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
-
-    <!-- dipendenza per hashare la password -->
-    <dependency>
-      <groupId>org.mindrot</groupId>
-      <artifactId>jbcrypt</artifactId>
-      <version>0.4</version>
-    </dependency>
   </dependencies>
 
   <build>
