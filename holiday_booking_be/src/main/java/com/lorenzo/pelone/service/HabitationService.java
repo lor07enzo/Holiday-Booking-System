@@ -22,13 +22,11 @@ public class HabitationService {
 
     
     public List<HabitationModel> getAllHabitations() {
-        
         return habitationDAO.findAll();
     }
 
     public List<HabitationModel> getAllHabitationsByHostCode(int hostCode) {
-        
-        if (!userDAO.existsByHostCode(hostCode)) {
+        if (!habitationDAO.existsByHostCode(hostCode)) {
             throw new IllegalArgumentException("Host code does not exist: " + hostCode);
         }
         return habitationDAO.findAllByHostHostCode(hostCode);
@@ -41,7 +39,7 @@ public class HabitationService {
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
-        HostModel host = userDAO.findByHostCode(hostCode)
+        HostModel host = userDAO.findHostByCode(hostCode)
             .orElseThrow(() -> new IllegalArgumentException("Host code does not exist: " + hostCode));
 
         habitation.setHost(host);

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.lorenzo.pelone.model.FeedbackModel;
 import com.lorenzo.pelone.model.ReservationModel;
 import com.lorenzo.pelone.model.UserModel;
+import com.lorenzo.pelone.repository.UserDAO;
 import com.lorenzo.pelone.repository.FeedbackDAO;
 import com.lorenzo.pelone.repository.ReservationDAO;
 
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FeedbackService {
     private final FeedbackDAO feedbackDAO;
     private final ReservationDAO reservationDAO;
+    private final UserDAO userDAO;
 
     
     public List<FeedbackModel> getAllFeedback() {
@@ -27,10 +29,12 @@ public class FeedbackService {
     }
 
     @Transactional
-    public String createFeedback(ReservationModel reservationId, UserModel user, String title, String text, int score) {
+    public String createFeedback(int reservationId, int userId, String title, String text, int score) {
+        
         ReservationModel res = reservationDAO.findById(reservationId).orElseThrow(() -> new IllegalArgumentException("Reservation not found with ID: " + reservationId));
+        UserModel user = userDAO.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-        if (feedbackDAO.existsByReservationId(reservationId.getId())) {
+        if (feedbackDAO.existsByReservationId(reservationId)) {
             throw new IllegalArgumentException("A feedback for this reservation has already been submitted.");
         }
 

@@ -1,6 +1,7 @@
 package com.lorenzo.pelone.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,22 +28,22 @@ public class ReservationService {
     private final UserDAO userDAO;
 
     public List<ReservationModel> getAllReservations() {
-        reservationDAO.updateExpiredReservations(LocalDate.now());
+        reservationDAO.updateExpiredReservations();
         return reservationDAO.findAll();
     }
 
     public List<ReservationModel> getReservationsLastMonth() {
-        LocalDate lastMonth = LocalDate.now().minusMonths(1);
-        return reservationDAO.findAllByStartDateAfter(lastMonth);
+        LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
+        return reservationDAO.findAllByCreatedAtAfter(lastMonth);
     }
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         
-        stats.put("topUsers", reservationDAO.findTop5UsersByDays());
+        stats.put("topUsers", reservationDAO.getTop5UsersByDays());
         stats.put("allHosts", userDAO.getHostsWithMonthlyReservations());
-        stats.put("topHosts", reservationDAO.findTopHosts());
-        stats.put("mostPopularHabitation", reservationDAO.findMostPopularHabitation());
+        stats.put("topHosts", reservationDAO.getTopHosts());
+        stats.put("mostPopularHabitation", reservationDAO.getMostPopularHabitation());
         
         return stats;
     }
@@ -62,7 +63,7 @@ public class ReservationService {
             throw new IllegalArgumentException("Cannot book dates in the past");
         }
 
-        boolean available = reservationDAO.isHabitationAvailable(habitationId, startDate, endDate);
+        boolean available = reservationDAO.isAvailable(habitationId, startDate, endDate);
         if (!available) {
             throw new IllegalArgumentException("Habitation is already booked for these dates");
         }
@@ -75,6 +76,7 @@ public class ReservationService {
         ReservationModel reservation = new ReservationModel();
         reservation.setHabitation(habitation);
         reservation.setUser(user);
+        reservation.setStatus("Confirmed");
         reservation.setStartDate(startDate);
         reservation.setEndDate(endDate);
 

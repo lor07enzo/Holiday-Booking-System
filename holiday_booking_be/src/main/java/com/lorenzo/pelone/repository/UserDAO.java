@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,10 +20,10 @@ public interface UserDAO extends JpaRepository<UserModel, Integer> {
 
     boolean existsByEmail(String email);
 
-    @Query("SELECT h FROM hosts h")
+    @Query("SELECT h FROM HostModel h")
     List<HostModel> findAllHosts();
 
-    @Query("SELECT h FROM hosts h WHERE h.host_code = :hostCode")
+    @Query("SELECT h FROM HostModel h WHERE h.hostCode = :hostCode")
     Optional<HostModel> findHostByCode(@Param("hostCode") int hostCode);
 
 
