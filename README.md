@@ -1,4 +1,4 @@
-# 🏖️ Turista Facoltoso - Sistema Gestione Affitti Vacanze
+# Holiday Booking - Sistema Gestione Affitti Vacanze
 
 [![Java](https://img.shields.io/badge/Backend-Java%2021-orange?style=flat-square&logo=openjdk)](https://www.oracle.com/java/)
 [![Javalin](https://img.shields.io/badge/Framework-Javalin%206-blue?style=flat-square)](https://javalin.io/)
@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 
-**Turista Facoltoso** è una piattaforma Full-Stack per la gestione completa di un ecosistema di affitto case vacanze. Il progetto si focalizza sulla solidità della logica di business, l'integrità dei dati e un'esperienza utente fluida per il backoffice.
+**Holiday Booking** è una piattaforma Full-Stack per la gestione completa di un ecosistema di affitto case vacanze. Il progetto si focalizza sulla solidità della logica di business, l'integrità dei dati e un'esperienza utente fluida per il backoffice.
 
 ---
 
@@ -28,7 +28,7 @@ Piattaforma gestionale progettata per amministrare utenti, host, abitazioni e pr
 
 | Layer | Tecnologie |
 | :--- | :--- |
-| **Backend** | Java 21, Javalin 6, PostgreSQL, Lombok, JDBC, Maven |
+| **Backend** | Java 21, Javalin 6, Spring Boot, PostgreSQL, Lombok, JDBC, Maven |
 | **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, date-fns |
 | **Tools** | Git, Postman, npm |
 
@@ -42,7 +42,7 @@ Il progetto adotta una **Layered Architecture** per garantire manutenibilità e 
 - `config/`: Configurazione database e pool di connessioni.
 - `controller/`: Gestione delle richieste HTTP e routing API.
 - `service/`: Logica di business e regole di validazione.
-- `repository/`: Layer di persistenza (Query SQL via JDBC).
+- `repository/`: Layer di persistenza.
 - `model/`: Entità del dominio (POJO).
 - `dto/`: Oggetti per il trasferimento dati ottimizzato.
 
