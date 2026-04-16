@@ -138,7 +138,7 @@ export const Statistics = () => {
                         Top 5 Users by Days Booked
                     </CardTitle>
                     <CardDescription>
-                        Users with the most days booked in the last month
+                        Users with the most days reserved in the last month
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -149,7 +149,7 @@ export const Statistics = () => {
                                     <TableHead className="w-12">#</TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
-                                    <TableHead className="text-right">Booked Days</TableHead>
+                                    <TableHead className="text-right">Reserved Days</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -193,7 +193,7 @@ export const Statistics = () => {
                         All Super Hosts
                     </CardTitle>
                     <CardDescription>
-                        Host who have had at least 100 bookings
+                        Host who have had at least 100 reservations
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -204,7 +204,7 @@ export const Statistics = () => {
                                     <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
                                     <TableHead>Registered</TableHead>
-                                    <TableHead className="text-right">Bookings/Month</TableHead>
+                                    <TableHead className="text-right">Reservations/Month</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

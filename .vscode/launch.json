@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-App<holiday_booking_be>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.lorenzo.pelone.App",
+            "projectName": "holiday_booking_be",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

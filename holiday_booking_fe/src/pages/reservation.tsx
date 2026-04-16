@@ -39,6 +39,13 @@ export function Reservation() {
     const isDateDisabled = (date: Date) => {
         if (!habitation) return true;
 
+        // Disabilita date prima del giorno attuale
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date < today) {
+            return true;
+        }
+
         const startAvailable = new Date(habitation.startAvailable);
         const endAvailable = new Date(habitation.endAvailable);
 
@@ -111,8 +118,8 @@ export function Reservation() {
     }
 
     return (
-        <div className="h-screen flex justify-center items-center py-8">
-            <div className="p-6 w-full max-w-4xl flex flex-col gap-6 bg-white rounded-lg shadow-lg overflow-y-auto max-h-[95vh]">
+        <div className=" flex justify-center items-center py-8">
+            <div className="p-6 w-full max-w-4xl flex flex-col gap-6 bg-white rounded-lg shadow-lg">
 
                 {/* Abitazione */}
                 <div className="space-y-1">
@@ -192,14 +199,14 @@ export function Reservation() {
 
                 {/* Sezione Feedback utenti */}
                 <FeedbackSection
-                feedbacks={filteredFeedbacks}
-                /> 
+                    feedbacks={filteredFeedbacks}
+                />
 
                 {/* Sezione Data e Utente */}
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <CalendarIcon className="h-6 w-6" />
-                        <h2 className="text-2xl font-semibold">Booking Details</h2>
+                        <h2 className="text-2xl font-semibold">Reservation Details</h2>
                     </div>
                     <Card className="p-4">
                         <div className="grid grid-cols-2 gap-4">
@@ -233,7 +240,7 @@ export function Reservation() {
                                             onSelect={(range) => setDateRange(range)}
                                             numberOfMonths={2}
                                             disabled={isDateDisabled}
-                                            defaultMonth={new Date(habitation.startAvailable)}
+                                            defaultMonth={new Date()}
                                         />
                                         <div className="p-3 border-t">
                                             <p className="text-xs text-muted-foreground">
