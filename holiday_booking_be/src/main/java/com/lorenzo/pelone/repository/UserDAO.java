@@ -29,6 +29,7 @@ public interface UserDAO extends JpaRepository<UserModel, Integer> {
 
     // Query per gestire la regola "100 prenotazioni = SuperHost"
     @Modifying
+    @Transactional
     @Query(value = """
         UPDATE hosts SET super_host = (
           SELECT COUNT(r.id) >= 100 

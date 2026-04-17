@@ -200,9 +200,15 @@ export const OverviewSection = (
                                         <TableBody>
                                             {hosts.map((host: IHost) => (
                                                 <TableRow key={host.hostCode}>
-                                                    <TableCell className="font-mono text-sm whitespace-nowrap">{host.hostCode}</TableCell>
-                                                    <TableCell className="font-medium whitespace-nowrap">{host.user?.name} {host.user?.lastName}</TableCell>
-                                                    <TableCell className="text-muted-foreground whitespace-nowrap">{host.user?.email}</TableCell>
+                                                    <TableCell className="font-mono text-sm whitespace-nowrap">
+                                                        {host.hostCode}
+                                                    </TableCell>
+                                                    <TableCell className="font-medium whitespace-nowrap">
+                                                        {host.user?.name} {host.user?.lastName}
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                                                        {host.user?.email}
+                                                    </TableCell>
                                                     <TableCell className="whitespace-nowrap">
                                                         {host.superHost ? (
                                                             <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
@@ -212,7 +218,9 @@ export const OverviewSection = (
                                                             <Badge variant="secondary">Standard</Badge>
                                                         )}
                                                     </TableCell>
-                                                    <TableCell className="text-right font-medium whitespace-nowrap">{host.resHostLastMonth ?? 0}</TableCell> 
+                                                    <TableCell className="text-right font-medium whitespace-nowrap">
+                                                        {host.resHostLastMonth ?? 0}
+                                                    </TableCell> 
                                                 </TableRow>
                                             ))}
                                         </TableBody>

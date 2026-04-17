@@ -151,9 +151,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             const response = await fetch(`${API_URL}/api/v1/reservations/statistics`);
             const data = await response.json();
 
+            // Formattiamo i dati piatti di Postgres per farli aderire alla tua interfaccia IHost
             if (data.allHosts) {
-                setHosts(data.allHosts); 
+                const formattedHosts: IHost[] = data.allHosts.map((rawHost: any) => ({
+                    hostCode: rawHost.hostCode ?? rawHost.hostcode ?? rawHost.host_code,
+                    superHost: rawHost.superHost ?? rawHost.superhost ?? rawHost.super_host,
+                    resHostLastMonth: rawHost.resHostLastMonth ?? rawHost.reshostlastmonth ?? 0,
+                    user: {
+                        name: rawHost.name,
+                        lastName: rawHost.lastName ?? rawHost.lastname ?? rawHost.last_name,
+                        email: rawHost.email,
+                        id: rawHost.id || 0,
+                        address: rawHost.address || "",
+                        createdAt: new Date()
+                    }
+                }));
+                setHosts(formattedHosts); 
             }
+            
             setStats(data);
         } catch {
             toast.error("Failed to load statistics");
