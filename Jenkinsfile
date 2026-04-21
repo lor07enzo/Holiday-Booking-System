@@ -14,7 +14,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/lor07enzo/Holiday-Booking-System.git'
+                git branch: 'main', 
+                    credentialsId: 'github-token',
+                    url: 'https://github.com/lor07enzo/Holiday-Booking-System.git'
             }
         }
 
@@ -25,7 +27,7 @@ pipeline {
                     sh 'echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env'
                     
                     // Comandi docker
-                    sh 'docker-compose down'
+                    sh 'docker-compose down || true'
                     sh 'docker-compose up -d --build'
                 }
             }
