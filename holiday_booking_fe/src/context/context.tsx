@@ -10,7 +10,7 @@ interface CreateUserPayload {
         lastName: string;
         email: string;
         address: string;
-        createdAt: Date;
+        createdAt: Date | undefined;
     };
     host: boolean;
 }

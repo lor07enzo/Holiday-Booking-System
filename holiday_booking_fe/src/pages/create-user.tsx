@@ -15,7 +15,8 @@ const createUserFormSchema = z.object({
     street: z.string().min(3, "Street is required"),
     city: z.string().min(2, "City is required"),
     country: z.string().min(2, "Country is required"),
-    isHost: z.boolean()
+    isHost: z.boolean(),
+    createdAt: z.date().optional()
 })
 
 export type CreateUserFormData = z.infer<typeof createUserFormSchema>;
@@ -60,7 +61,8 @@ export function CreateUser() {
                 name: parsed.data.name,
                 lastName: parsed.data.lastName,
                 email: parsed.data.email,
-                address: fullAddress
+                address: fullAddress,
+                createdAt: parsed.data.createdAt
             },
             host: parsed.data.isHost
         };

@@ -6,7 +6,7 @@ export interface IUser {
     lastName: string;
     email: string;
     address: string;
-    createdAt: Date;
+    createdAt?: Date;
 }
 
 export interface IHost {
