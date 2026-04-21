@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'M3'
+    }
+
     environment {
         // Usa le credenziali salvate su Jenkins per il file .env
         POSTGRES_USER = credentials('db-user')
@@ -32,6 +36,18 @@ pipeline {
                 sh 'docker ps'
                 echo "Applicazione lanciata con successo!"
             }
+        }
+    }
+    post {
+        always {
+            // Pulisce la cartella di lavoro per non intasare Docker Desktop
+            cleanWs()
+        }
+        success {
+            echo 'Build terminata con successo!'
+        }
+        failure {
+            echo 'Build fallita. Controlla i log per maggiori dettagli.'
         }
     }
 }
