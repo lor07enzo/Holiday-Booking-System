@@ -168,6 +168,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 }));
                 setHosts(formattedHosts); 
             }
+            if (data.topUsers) {
+                data.topUsers = data.topUsers.map((u: any) => ({
+                    ...u,
+                    fullName: u.fullName || `${u.name ?? ''} ${u.lastName ?? u.lastname ?? u.last_name ?? ''}`.trim()
+                }));
+            }
             
             setStats(data);
         } catch {
