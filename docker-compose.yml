@@ -2,7 +2,10 @@
 services:
   # --- FRONTEND ---
   frontend:
-    build: ./holiday_booking_fe
+    build: 
+      context: ./holiday_booking_fe
+      args:
+        - VITE_API_URL=http://localhost:7000
     container_name: react_frontend-2
     ports:
       - "5173:80"

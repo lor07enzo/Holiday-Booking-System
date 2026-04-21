@@ -7,6 +7,10 @@ COPY package*.json ./
 
 # Rimuove eventuali binding errati e installa da zero per Linux
 RUN npm ci
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Copia codice e build
 COPY . .
 RUN npm run build
