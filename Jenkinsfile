@@ -17,11 +17,10 @@ pipeline {
         stage('Build & Run Docker') {
             steps {
                 script {
-                    // Crea il file .env al volo per i container
-                    sh "echo POSTGRES_USER=${POSTGRES_USER} > .env"
-                    sh "echo POSTGRES_PASSWORD=${POSTGRES_PASSWORD} >> .env"
+                    sh 'echo "POSTGRES_USER=$POSTGRES_USER" > .env'
+                    sh 'echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env'
                     
-                    // Lancia il build
+                    // Comandi docker
                     sh 'docker-compose down'
                     sh 'docker-compose up -d --build'
                 }
